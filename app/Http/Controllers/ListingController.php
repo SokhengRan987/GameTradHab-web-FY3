@@ -112,10 +112,7 @@ class ListingController extends Controller
     // Show edit form
     public function edit(Listing $listing)
     {
-        // Only the seller can edit their own listing
-        if ($listing->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('update', $listing);
 
         $games = Game::where('is_active', true)->get();
         return view('listings.edit', compact('listing', 'games'));
@@ -124,9 +121,7 @@ class ListingController extends Controller
     // Update listing
     public function update(Request $request, Listing $listing)
     {
-        if ($listing->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('update', $listing);
 
         $validated = $request->validate([
             'game_id'     => 'required|exists:games,id',
@@ -154,9 +149,7 @@ class ListingController extends Controller
     // Delete listing
     public function destroy(Listing $listing)
     {
-        if ($listing->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('delete', $listing);
 
         // Delete all images from storage
         foreach ($listing->images as $image) {

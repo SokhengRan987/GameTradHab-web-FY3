@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ListingController as AdminListingController;
 use App\Http\Controllers\Admin\TransactionController as AdminTransactionController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 
 // ── PUBLIC ROUTES ─────────────────────────────────────────
 Route::get('/', [ListingController::class, 'index'])->name('home');
@@ -58,7 +59,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/transactions', [TransactionController::class, 'index'])
         ->name('transactions.index');
     Route::post('/transactions', [TransactionController::class, 'store'])
-        ->name('transactions.store');
+        ->name('transactions.store')
+        ->middleware('throttle:5,1'); // max 5 purchases per minute
     Route::post('/transactions/{transaction}/confirm', [TransactionController::class, 'confirm'])
         ->name('transactions.confirm');
     Route::post('/transactions/{transaction}/dispute', [TransactionController::class, 'dispute'])

@@ -5,9 +5,17 @@ use App\Services\WalletService;
 use App\Services\EscrowService;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
+use App\Models\Listing;
+use App\Policies\ListingPolicy;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
+
+    protected $policies = [
+        Listing::class => ListingPolicy::class,
+    ];
+
     /**
      * Register any application services.
      */
@@ -28,7 +36,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register policy manually
+        Gate::policy(Listing::class, ListingPolicy::class);
+
+        // Use Tailwind pagination
         Paginator::useTailwind();
     }
 }

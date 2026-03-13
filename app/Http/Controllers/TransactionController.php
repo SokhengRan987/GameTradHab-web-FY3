@@ -49,11 +49,23 @@ class TransactionController extends Controller
     // Buyer clicks "Buy Now"
     public function store(Request $request)
     {
+
+        $existingTransaction = Transaction::where('listing_id', $listing->id)
+            ->where('buyer_id', auth()->id())
+            ->whereIn('status', ['pending', 'escrow'])
+            ->first();
+
         $request->validate([
             'listing_id' => 'required|exists:listings,id',
         ]);
 
         $listing = Listing::findOrFail($request->listing_id);
+
+        if ($existingTransaction) {
+            return redirect()
+            ->route('transactions.show', $existingTransaction)
+            ->with('error', 'You already have an active transaction for this listing. Please complete or cancel it before making a new purchase.');
+        }
 
         // Cannot buy inactive listing
         if ($listing->status !== 'active') {
