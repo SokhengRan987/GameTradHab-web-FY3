@@ -5,6 +5,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\AuctionController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ListingController as AdminListingController;
 use App\Http\Controllers\Admin\TransactionController as AdminTransactionController;
@@ -93,6 +94,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('transactions.dispute');
     Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])
         ->name('transactions.show');
+
+    // Reviews
+    Route::post('/reviews/{transaction}', [ReviewController::class, 'store'])
+        ->name('reviews.store');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])
+        ->name('reviews.destroy');
 
     // Wallet
     Route::get('/wallet', [WalletController::class, 'index'])
