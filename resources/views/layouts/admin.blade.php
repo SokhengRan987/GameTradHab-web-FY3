@@ -28,35 +28,92 @@
                 Overview
             </div>
             <a href="{{ route('admin.dashboard') }}"
-               class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-1
-                      {{ request()->routeIs('admin.dashboard') ? 'bg-sky-600/20 text-sky-400 font-semibold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+            class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-1
+                    {{ request()->routeIs('admin.dashboard')
+                        ? 'bg-sky-600/20 text-sky-400 font-semibold'
+                        : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
                 📈 Dashboard
+            </a>
+
+            <div class="text-xs font-bold text-gray-600 uppercase tracking-wider px-2 mt-4 mb-2">
+                Problems
+            </div>
+
+            <a href="{{ route('admin.reports.index') }}"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-1
+                    {{ request()->routeIs('admin.reports.*')
+                        ? 'bg-sky-600/20 text-sky-400 font-semibold'
+                        : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                📋 Reports
+                @php $openReports = \App\Models\Report::where('status','pending')->count() @endphp
+                @if($openReports > 0)
+                <span class="ml-auto bg-red-500 text-white text-xs
+                            px-1.5 py-0.5 rounded-full font-bold">
+                    {{ $openReports }}
+                </span>
+                @endif
+            </a>
+
+            <a href="{{ route('admin.transactions.index', ['status' => 'disputed']) }}"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-1
+                    {{ request()->routeIs('admin.transactions.*')
+                        ? 'bg-sky-600/20 text-sky-400 font-semibold'
+                        : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                ⚖️ Disputes
+                @php $disputes = \App\Models\Transaction::where('status','disputed')->count() @endphp
+                @if($disputes > 0)
+                <span class="ml-auto bg-red-500 text-white text-xs
+                            px-1.5 py-0.5 rounded-full font-bold">
+                    {{ $disputes }}
+                </span>
+                @endif
+            </a>
+
+            <a href="{{ route('admin.listings.index', ['filter' => 'flagged']) }}"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-1
+                    text-gray-400 hover:bg-gray-800 hover:text-white">
+                🚩 Flagged
+                @php $flagged = \App\Models\Listing::where('is_flagged',true)->where('status','active')->count() @endphp
+                @if($flagged > 0)
+                <span class="ml-auto bg-yellow-500 text-black text-xs
+                            px-1.5 py-0.5 rounded-full font-bold">
+                    {{ $flagged }}
+                </span>
+                @endif
             </a>
 
             <div class="text-xs font-bold text-gray-600 uppercase tracking-wider px-2 mt-4 mb-2">
                 Manage
             </div>
+
             <a href="{{ route('admin.listings.index') }}"
-               class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-1
-                      {{ request()->routeIs('admin.listings.*') ? 'bg-sky-600/20 text-sky-400 font-semibold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+            class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-1
+                    {{ request()->routeIs('admin.listings.*')
+                        ? 'bg-sky-600/20 text-sky-400 font-semibold'
+                        : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
                 🛒 Listings
-                @php $pending = \App\Models\Listing::where('status','pending')->count() @endphp
-                @if($pending > 0)
-                <span class="ml-auto bg-yellow-500 text-black text-xs px-1.5 py-0.5 rounded-full font-bold">
-                    {{ $pending }}
-                </span>
-                @endif
             </a>
+
+            <a href="{{ route('admin.auctions.index') }}"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-1
+                    {{ request()->routeIs('admin.auctions.*')
+                        ? 'bg-sky-600/20 text-sky-400 font-semibold'
+                        : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                🏆 Auctions
+            </a>
+
             <a href="{{ route('admin.transactions.index') }}"
-               class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-1
-                      {{ request()->routeIs('admin.transactions.*') ? 'bg-sky-600/20 text-sky-400 font-semibold' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+            class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-1
+                    text-gray-400 hover:bg-gray-800 hover:text-white">
                 💳 Transactions
-                @php $disputes = \App\Models\Transaction::where('status','disputed')->count() @endphp
-                @if($disputes > 0)
-                <span class="ml-auto bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">
-                    {{ $disputes }}
-                </span>
-                @endif
+            </a>
+
+            <a href="{{ route('admin.users.index') }}"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-1
+                    {{ request()->routeIs('admin.users.*')
+                        ? 'bg-sky-600/20 text-sky-400 font-semibold'
+                        : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                👥 Users
             </a>
 
         </nav>

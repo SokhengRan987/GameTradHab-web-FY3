@@ -38,9 +38,9 @@
 
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
-        
+
         {{-- Role Selection --}}
-        <div>
+        {{-- <div>
             <x-input-label for="role" :value="__('I want to')" />
             <select id="role" name="role"
                     class="mt-1 block w-full border-gray-700 bg-gray-800 text-white
@@ -49,7 +49,7 @@
                 <option value="seller">📤 Sell game accounts</option>
             </select>
             <x-input-error :messages="$errors->get('role')" class="mt-2" />
-        </div>
+        </div> --}}
 
         <div class="flex items-center justify-end mt-4">
             <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">

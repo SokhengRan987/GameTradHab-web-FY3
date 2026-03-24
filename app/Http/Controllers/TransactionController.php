@@ -49,23 +49,11 @@ class TransactionController extends Controller
     // Buyer clicks "Buy Now"
     public function store(Request $request)
     {
-
-        $existingTransaction = Transaction::where('listing_id', $listing->id)
-            ->where('buyer_id', auth()->id())
-            ->whereIn('status', ['pending', 'escrow'])
-            ->first();
-
         $request->validate([
             'listing_id' => 'required|exists:listings,id',
         ]);
 
         $listing = Listing::findOrFail($request->listing_id);
-
-        if ($existingTransaction) {
-            return redirect()
-            ->route('transactions.show', $existingTransaction)
-            ->with('error', 'You already have an active transaction for this listing. Please complete or cancel it before making a new purchase.');
-        }
 
         // Cannot buy inactive listing
         if ($listing->status !== 'active') {
@@ -84,8 +72,20 @@ class TransactionController extends Controller
                 ->with('error', 'Insufficient balance. Please top up your wallet first.');
         }
 
+        // Check if buyer already has active transaction for this listing
+        $existingTransaction = Transaction::where('listing_id', $listing->id)
+            ->where('buyer_id', auth()->id())
+            ->whereIn('status', ['pending', 'escrow'])
+            ->first();
+
+        if ($existingTransaction) {
+            return redirect()
+                ->route('transactions.show', $existingTransaction)
+                ->with('error', 'You already have an active transaction for this listing.');
+        }
+
         // Calculate fees
-        $fee    = round($listing->price * 0.05, 2); // 5% platform fee
+        $fee    = round($listing->price * 0.05, 2);
         $payout = round($listing->price - $fee, 2);
 
         // Create the transaction

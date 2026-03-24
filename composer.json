@@ -7,8 +7,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "annexare/countries-list": "*",
         "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "monarobase/country-list": "^3.7"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -25,7 +27,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+        "app/Helpers/Countries.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

@@ -13,6 +13,14 @@ class Listing extends Model
         'title',
         'description',
         'price',
+        // Adding this for scope auction
+        // =============================
+        'starting_price',
+        'bid_increment',
+        'auction_ends_at',
+        'current_bid',
+        'highest_bidder_id',
+        // =============================
         'rank',
         'level',
         'server',
@@ -25,6 +33,16 @@ class Listing extends Model
         'admin_notes',
         'is_featured',
         'views_count',
+        // =============================
+        // Adding new for seller form
+        // =============================
+        'seller_phone',
+        'seller_country',
+        'stock_source',
+        'stock_source_note',
+        'is_flagged',
+        'flag_reason',
+        'flagged_at',
     ];
 
     protected $casts = [
@@ -32,7 +50,80 @@ class Listing extends Model
         'tags'         => 'array',
         'is_featured'  => 'boolean',
         'price'        => 'decimal:2',
+        'is_flagged' => 'boolean',
+        'flagged_at' => 'datetime',
+
+        // Adding this for scope auction
+        // =============================
+        'starting_price' => 'decimal:2',
+        'bid_increment' => 'decimal:2',
+        'current_bid' => 'decimal:2',
+        'auction_ends_at' => 'datetime',
+        // =============================
     ];
+
+
+    // ===========================================
+    // New Relationship in scope Auction
+    // ===========================================
+    // All bids on this listing
+    public function bids(){
+        return $this->hasMany(Bid::class)->orderBy('amount', 'desc');
+    }
+
+    // The current highest bidder
+    public function highestBidder()
+    {
+        return $this->hasMany(User::class, 'highest_bidder_id');
+    }
+
+    // <<<< Auction helper methods >>>>>>>>>>>>>>>>>>>>>>>>>>
+    // Is this an auction listing?
+    public function isAuction(): bool{
+        return $this->type === 'auction';
+    }
+
+    // Is this a fixed price listing?
+    public function isFixed():bool {
+        return $this->type === 'fixed';
+    }
+
+    // Has the auction ended?
+    public function hasEnded(): bool {
+        return $this->auction_ends_at && $this->auction_ends_at->isPast();
+    }
+
+    // Is the auction still running?
+    public function isLive(): bool {
+        return $this->isAuction()
+            && $this->status === 'active'
+            && !$this->hasEnded();
+    }
+
+    // What is the minimum next bid?
+    public function minimumNextBid(): float {
+        if ($this->current_bid){
+            return (float) $this->current_id + (float) $this->bid_increment;
+        }
+        return (float) $this->starting_price;
+    }
+
+    // How much time is left in the auction?
+    public function timeRemaining(): string {
+        if(!$this->auction_ends_at || $this->hasEnded()){
+            return 'Ended';
+        }
+        return $this->aution_ends_at->diffForHumans();
+    }
+
+    // Scope for active auctions only
+    public function scopeAuction($query) {
+        return $query->where('type', 'auction')
+                     ->where('status', 'active')
+                     ->where('aution_ends_at', '>', now());
+    }
+    // ===========================================
+
     // This listing belongs to a seller (User)
     public function seller()
     {
@@ -59,6 +150,20 @@ class Listing extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+    
+    // Reports on this listing
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
+
+    // Scope — flagged listings only
+    public function scopeFlagged($query)
+    {
+        return $query->where('is_flagged', true)
+                    ->where('status', 'active');
+    }
+
 
     // ── Scopes (reusable query filters) ──────────
     // Use: Listing::active()->get()

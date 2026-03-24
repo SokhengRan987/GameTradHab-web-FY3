@@ -77,7 +77,73 @@
                     {{ $listing->description }}
                 </p>
             </div>
+            {{-- Seller Reviews --}}
+            @php
+                $sellerReviews = $listing->seller->reviews()->with('reviewer')->take(3)->get();
+                $totalReviews  = $listing->seller->reviews()->count();
+            @endphp
+            @if($sellerReviews->count() > 0)
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-bold">⭐ Seller Reviews</h3>
+                    <a href="{{ route('sellers.show', $listing->seller) }}"
+                    class="text-xs text-indigo-400 hover:underline">
+                        View all {{ $totalReviews }} →
+                    </a>
+                </div>
 
+                {{-- Rating summary --}}
+                <div class="flex items-center gap-3 bg-gray-800 rounded-xl p-3 mb-4">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-yellow-400">
+                            {{ number_format($listing->seller->rating_avg, 1) }}
+                        </div>
+                        <div class="text-xs text-gray-500">out of 5</div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-yellow-400 text-lg mb-0.5">
+                            @for($i = 1; $i <= 5; $i++)
+                                {{ $i <= round($listing->seller->rating_avg) ? '⭐' : '☆' }}
+                            @endfor
+                        </div>
+                        <div class="text-xs text-gray-400">
+                            {{ $totalReviews }} reviews
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Recent reviews --}}
+                @foreach($sellerReviews as $review)
+                <div class="border-b border-gray-800 last:border-0 py-3">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 bg-indigo-600 rounded-full flex items-center
+                                        justify-center text-xs font-bold">
+                                {{ strtoupper(substr($review->reviewer->name, 0, 1)) }}
+                            </div>
+                            <span class="text-sm font-semibold">
+                                {{ $review->reviewer->name }}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-yellow-400 text-sm">
+                                {{ $review->stars() }}
+                            </span>
+                            <span class="text-xs text-gray-500">
+                                {{ $review->created_at->diffForHumans() }}
+                            </span>
+                        </div>
+                    </div>
+                    @if($review->comment)
+                    <p class="text-xs text-gray-300 mt-1 leading-relaxed">
+                        {{ $review->comment }}
+                    </p>
+                    @endif
+                </div>
+                @endforeach
+
+            </div>
+            @endif
         </div>
 
         {{-- Right — Buy Box --}}
@@ -92,13 +158,26 @@
                 {{-- Seller --}}
                 <div class="flex items-center gap-3 bg-gray-800 rounded-xl p-3 mb-4">
                     <div class="w-9 h-9 bg-indigo-600 rounded-full flex items-center
-                                justify-center font-bold text-sm">
+                                justify-center font-bold text-sm flex-shrink-0">
                         {{ strtoupper(substr($listing->seller->name, 0, 1)) }}
                     </div>
-                    <div>
-                        <div class="font-semibold text-sm">{{ $listing->seller->name }}</div>
-                        <div class="text-xs text-gray-400">
-                            🛒 {{ $listing->seller->total_sales }} sales
+                    <div class="flex-1 min-w-0">
+                        <a href="{{ route('sellers.show', $listing->seller) }}"
+                        class="font-semibold text-sm hover:text-indigo-400 transition">
+                            {{ $listing->seller->name }}
+                        </a>
+                        <div class="flex items-center gap-2 text-xs text-gray-400 flex-wrap">
+                            <span>🛒 {{ $listing->seller->total_sales }} sales</span>
+                            @if($listing->seller->rating_avg > 0)
+                            <span>·</span>
+                            <span class="text-yellow-400">
+                                ⭐ {{ number_format($listing->seller->rating_avg, 1) }}
+                            </span>
+                            @endif
+                            @if($listing->seller->is_verified)
+                            <span>·</span>
+                            <span class="text-sky-400">✓ Verified</span>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -144,6 +223,12 @@
                         <strong class="text-yellow-400">
                             ${{ number_format(auth()->user()->wallet_balance, 2) }}
                         </strong>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-gray-800 text-center">
+                        <a href="{{ route('listings.report', $listing) }}"
+                        class="text-xs text-gray-600 hover:text-red-400 transition">
+                            🚩 Report this listing
+                        </a>
                     </div>
                     @endif
                 @else

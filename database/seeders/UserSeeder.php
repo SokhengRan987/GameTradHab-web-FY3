@@ -23,24 +23,25 @@ class UserSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        //Seller account
+        // Test User 1 — can both buy and sell
         User::create([
-            'name' => 'Test Seller',
-            'username' => 'seller1',
-            'email' => 'seller@test.com',
-            'password' => bcrypt('password'),
-            'role' => 'seller',
+            'name'              => 'Test User',
+            'username'          => 'testuser1',
+            'email'             => 'user@test.com',
+            'password'          => bcrypt('password'),
+            'role'              => 'buyer',
+            'wallet_balance'    => 500.00,
             'email_verified_at' => now(),
         ]);
 
-        //Buyer account (pre-loaded  with $500 for testing)
+        // Test User 2 — can both buy and sell
         User::create([
-            'name' => 'Test Buyer',
-            'username' => 'buyer1',
-            'email' => 'buyer@test.com',
-            'password' => bcrypt('password'),
-            'role' => 'buyer',
-            'wallet_balance' => 500.00,
+            'name'              => 'Test User 2',
+            'username'          => 'testuser2',
+            'email'             => 'user2@test.com',
+            'password'          => bcrypt('password'),
+            'role'              => 'buyer',
+            'wallet_balance'    => 300.00,
             'email_verified_at' => now(),
         ]);
     }

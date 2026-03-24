@@ -56,4 +56,16 @@ class Transaction extends Model
     public static function generateCode(): string{
         return 'TXN-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
     }
+
+    // Review left for this transaction
+    public function review()
+    {
+        return $this->hasOne(Review::class);
+    }
+
+    // Has the buyer left a review yet?
+    public function hasReview(): bool
+    {
+        return $this->review()->exists();
+    }
 }

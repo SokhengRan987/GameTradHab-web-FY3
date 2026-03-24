@@ -1,3 +1,171 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Gaming Theme Styles */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #1a1a1a;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #00ff88, #0088ff);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #00ff88, #ff0080);
+    }
+}
+
+@layer components {
+    /* Gaming Button Styles */
+    .btn-gaming {
+        @apply relative overflow-hidden bg-gradient-to-r from-gaming-primary to-gaming-accent
+               text-gaming-dark font-bold py-3 px-6 rounded-lg shadow-neon-green
+               hover:shadow-neon-blue transition-all duration-300 transform hover:scale-105;
+    }
+
+    .btn-gaming::before {
+        content: '';
+        @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
+               -translate-x-full transition-transform duration-700;
+    }
+
+    .btn-gaming:hover::before {
+        @apply translate-x-full;
+    }
+
+    /* Gaming Card Styles */
+    .card-gaming {
+        @apply bg-card-gradient border border-gaming-border rounded-xl p-6
+               shadow-gaming hover:shadow-neon-green transition-all duration-300
+               transform hover:scale-[1.02] hover:border-gaming-primary/50;
+    }
+
+    /* Neon Text Effects */
+    .text-neon-green {
+        @apply text-gaming-primary drop-shadow-[0_0_10px_rgba(0,255,136,0.5)];
+    }
+
+    .text-neon-pink {
+        @apply text-gaming-secondary drop-shadow-[0_0_10px_rgba(255,0,128,0.5)];
+    }
+
+    .text-neon-blue {
+        @apply text-gaming-accent drop-shadow-[0_0_10px_rgba(0,136,255,0.5)];
+    }
+
+    /* Gaming Input Styles */
+    .input-gaming {
+        @apply bg-gaming-card border border-gaming-border rounded-lg px-4 py-3
+               text-gaming-text placeholder-gaming-text-secondary
+               focus:border-gaming-primary focus:outline-none focus:shadow-neon-green
+               transition-all duration-300;
+    }
+
+    /* Gaming Navbar */
+    .navbar-gaming {
+        @apply bg-gaming-darker/95 backdrop-blur-md border-b border-gaming-border
+               shadow-gaming sticky top-0 z-50;
+    }
+
+    /* Gaming Badge */
+    .badge-gaming {
+        @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+               bg-gaming-primary/20 text-gaming-primary border border-gaming-primary/30;
+    }
+
+    /* Gaming Grid */
+    .grid-gaming {
+        @apply grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+    }
+
+    /* Gaming Hero Section */
+    .hero-gaming {
+        @apply relative overflow-hidden bg-gradient-to-br from-gaming-darker via-gaming-dark to-gaming-card
+               text-center py-20 px-4;
+    }
+
+    .hero-gaming::before {
+        content: '';
+        @apply absolute inset-0 opacity-10;
+        background-image: radial-gradient(circle at 25% 25%, #00ff88 2px, transparent 2px),
+                          radial-gradient(circle at 75% 75%, #0088ff 2px, transparent 2px),
+                          radial-gradient(circle at 50% 50%, #ff0080 2px, transparent 2px);
+        background-size: 50px 50px;
+    }
+
+    /* Floating Animation */
+    .animate-float {
+        animation: float 3s ease-in-out infinite;
+    }
+
+    /* Glow Animation */
+    .animate-glow {
+        animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    /* Pulse Neon */
+    .animate-pulse-neon {
+        animation: pulse-neon 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Gaming Stats */
+    .stat-gaming {
+        @apply bg-gaming-card rounded-lg p-4 border border-gaming-border
+               hover:border-gaming-primary/50 transition-colors duration-300;
+    }
+
+    .stat-gaming .stat-number {
+        @apply text-2xl font-bold text-gaming-primary;
+    }
+
+    .stat-gaming .stat-label {
+        @apply text-sm text-gaming-text-secondary uppercase tracking-wide;
+    }
+}
+
+/* Custom Keyframes */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 5px rgba(0, 255, 136, 0.5); }
+    100% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.8); }
+}
+
+@keyframes pulse-neon {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-gaming {
+        @apply py-12 px-2;
+    }
+
+    .grid-gaming {
+        @apply grid-cols-1 md:grid-cols-2;
+    }
+}
