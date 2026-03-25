@@ -159,41 +159,9 @@
                     Phone Number *
                 </label>
                 <div class="flex gap-2">
-                    <select name="phone_country_code"
-                            class="bg-gray-800 border border-gray-700 rounded-xl
-                                   px-2 py-2.5 text-sm text-white w-36
-                                   focus:outline-none focus:border-indigo-500">
-                        <option value="">Code</option>
-                        <option value="+60"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+60'  ? 'selected' : '' }}>🇲🇾 +60</option>
-                        <option value="+62"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+62'  ? 'selected' : '' }}>🇮🇩 +62</option>
-                        <option value="+63"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+63'  ? 'selected' : '' }}>🇵🇭 +63</option>
-                        <option value="+66"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+66'  ? 'selected' : '' }}>🇹🇭 +66</option>
-                        <option value="+65"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+65'  ? 'selected' : '' }}>🇸🇬 +65</option>
-                        <option value="+84"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+84'  ? 'selected' : '' }}>🇻🇳 +84</option>
-                        <option value="+95"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+95'  ? 'selected' : '' }}>🇲🇲 +95</option>
-                        <option value="+855" {{ old('phone_country_code', auth()->user()->phone_country_code) === '+855' ? 'selected' : '' }}>🇰🇭 +855</option>
-                        <option value="+673" {{ old('phone_country_code', auth()->user()->phone_country_code) === '+673' ? 'selected' : '' }}>🇧🇳 +673</option>
-                        <option value="+86"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+86'  ? 'selected' : '' }}>🇨🇳 +86</option>
-                        <option value="+81"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+81'  ? 'selected' : '' }}>🇯🇵 +81</option>
-                        <option value="+82"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+82'  ? 'selected' : '' }}>🇰🇷 +82</option>
-                        <option value="+886" {{ old('phone_country_code', auth()->user()->phone_country_code) === '+886' ? 'selected' : '' }}>🇹🇼 +886</option>
-                        <option value="+852" {{ old('phone_country_code', auth()->user()->phone_country_code) === '+852' ? 'selected' : '' }}>🇭🇰 +852</option>
-                        <option value="+91"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+91'  ? 'selected' : '' }}>🇮🇳 +91</option>
-                        <option value="+92"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+92'  ? 'selected' : '' }}>🇵🇰 +92</option>
-                        <option value="+880" {{ old('phone_country_code', auth()->user()->phone_country_code) === '+880' ? 'selected' : '' }}>🇧🇩 +880</option>
-                        <option value="+966" {{ old('phone_country_code', auth()->user()->phone_country_code) === '+966' ? 'selected' : '' }}>🇸🇦 +966</option>
-                        <option value="+971" {{ old('phone_country_code', auth()->user()->phone_country_code) === '+971' ? 'selected' : '' }}>🇦🇪 +971</option>
-                        <option value="+90"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+90'  ? 'selected' : '' }}>🇹🇷 +90</option>
-                        <option value="+234" {{ old('phone_country_code', auth()->user()->phone_country_code) === '+234' ? 'selected' : '' }}>🇳🇬 +234</option>
-                        <option value="+27"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+27'  ? 'selected' : '' }}>🇿🇦 +27</option>
-                        <option value="+1"   {{ old('phone_country_code', auth()->user()->phone_country_code) === '+1'   ? 'selected' : '' }}>🇺🇸 +1</option>
-                        <option value="+44"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+44'  ? 'selected' : '' }}>🇬🇧 +44</option>
-                        <option value="+61"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+61'  ? 'selected' : '' }}>🇦🇺 +61</option>
-                        <option value="+55"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+55'  ? 'selected' : '' }}>🇧🇷 +55</option>
-                        <option value="+7"   {{ old('phone_country_code', auth()->user()->phone_country_code) === '+7'   ? 'selected' : '' }}>🇷🇺 +7</option>
-                        <option value="+49"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+49'  ? 'selected' : '' }}>🇩🇪 +49</option>
-                        <option value="+33"  {{ old('phone_country_code', auth()->user()->phone_country_code) === '+33'  ? 'selected' : '' }}>🇫🇷 +33</option>
-                    </select>
+                    <x-country-select
+                        name="country"
+                        :selected="old('country', auth()->user()->country ?? '')" />
                     <input type="text" name="phone_number"
                            value="{{ old('phone_number', auth()->user()->phone_number) }}"
                            placeholder="123456789"

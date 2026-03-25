@@ -75,9 +75,11 @@
                 {{-- Time remaining badge --}}
                 <div class="absolute bottom-2 right-2 bg-black/70 backdrop-blur
                             text-xs px-2 py-1 rounded-full font-bold
-                            {{ $listing->auction_ends_at->diffInHours() < 1
-                               ? 'text-red-400' : 'text-yellow-400' }}">
-                    ⏰ {{ $listing->timeRemaining() }}
+                            {{ optional($listing->auction_ends_at)->diffInHours() < 1
+                            ? 'text-red-400' : 'text-yellow-400' }}">
+                            ⏰ {{ optional($listing->auction_ends_at)
+                                    ? $listing->timeRemaining()
+                                    : 'No end time' }}
                 </div>
             </div>
 
@@ -100,11 +102,11 @@
                     {{-- <div class="text-xs text-gray-500">
                         by {{ $listing->highestBidder->name ?? '—' }}
                     </div> --}}
-                    <td class="px-4 py-3 text-sm font-bold text-yellow-400">
+                    {{-- <td class="px-4 py-3 text-sm font-bold text-yellow-400">
                         {{ $listing->current_bid
                         ? '$'.number_format($listing->current_bid, 2)
                         : '—' }}
-                    </td>
+                    </td> --}}
                     @else
                     <div class="text-xs text-gray-400 mb-0.5">Starting Bid</div>
                     <div class="text-lg font-bold text-green-400 font-mono">

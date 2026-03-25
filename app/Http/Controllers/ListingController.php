@@ -7,6 +7,7 @@ use App\Models\Listing;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class ListingController extends Controller
 {
@@ -67,13 +68,13 @@ class ListingController extends Controller
     // Show create listing form
     public function create()
     {
-        if (!auth()->check()) {
+        if (!Auth::check()) {
             return redirect()->route('login');
         }
 
         $games = Game::where('is_active', true)->get();
 
-        if (!auth()->user()->hasCompletedOnboarding()) {
+        if (!Auth::user()->hasCompletedOnboarding()) {
             session()->flash('warning', 'Complete seller onboarding to publish, or continue to create a draft.');
         }
 

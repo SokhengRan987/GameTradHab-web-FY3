@@ -32,4 +32,8 @@ class Bid extends Model
     public function isWon(): bool {
         return $this->status === 'won';
     }
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
 }

@@ -19,20 +19,11 @@ Route::get('/', [ListingController::class, 'index'])->name('home');
 Route::get('/listings', [ListingController::class, 'index'])->name('listings.index');
 Route::get('/auctions', [AuctionController::class, 'index'])->name('auctions.index');
 
-// Seller Profile
-Route::get('/sellers/{user}', [App\Http\Controllers\SellerProfileController::class, 'show'])
-    ->name('sellers.show');
-
-// Listings create (public for testing)
-Route::get('/listings/create', [ListingController::class, 'create'])
-    ->name('listings.create');
-
 // ── BREEZE AUTH ROUTES ────────────────────────────────────
 require __DIR__.'/auth.php';
 
 // ── AUTHENTICATED USER ROUTES ─────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
-
 
     // Dashboard
     Route::get('/dashboard', function () {
@@ -66,7 +57,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/sell/onboarding', [App\Http\Controllers\SellerOnboardingController::class, 'store'])
         ->name('seller.onboarding.store');
 
-    // Listings — create/edit MUST come before {listing} wildcard
+    // Listings — /create and /edit MUST come before {listing}
+    Route::get('/listings/create', [ListingController::class, 'create'])
+        ->name('listings.create');
     Route::get('/listings/{listing}/edit', [ListingController::class, 'edit'])
         ->name('listings.edit');
     Route::post('/listings', [ListingController::class, 'store'])
@@ -96,7 +89,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('transactions.show');
 
     // Reviews
-    Route::post('/reviews/{transaction}', [ReviewController::class, 'store'])
+    Route::post('/transactions/{transaction}/review', [ReviewController::class, 'store'])
         ->name('reviews.store');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])
         ->name('reviews.destroy');
@@ -107,11 +100,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/wallet/topup', [WalletController::class, 'topup'])
         ->name('wallet.topup');
 
-    // Auctions — create/my-bids MUST come before {listing} wildcard
-    Route::get('/auctions/my-bids', [AuctionController::class, 'myBids'])
-        ->name('auctions.my-bids');
+    // Auctions — /create and /my-bids MUST come before {listing}
     Route::get('/auctions/create', [AuctionController::class, 'create'])
         ->name('auctions.create');
+    Route::get('/auctions/my-bids', [AuctionController::class, 'myBids'])
+        ->name('auctions.my-bids');
     Route::post('/auctions', [AuctionController::class, 'store'])
         ->name('auctions.store');
     Route::post('/auctions/{listing}/bid', [AuctionController::class, 'bid'])
@@ -175,8 +168,12 @@ Route::middleware(['auth', 'admin'])
 });
 
 // ── PUBLIC DETAIL ROUTES ──────────────────────────────────
-// These MUST be last so /create and /my-bids are matched first
+// MUST be last — so /create and /my-bids are matched first above
 Route::get('/listings/{listing}', [ListingController::class, 'show'])
     ->name('listings.show');
 Route::get('/auctions/{listing}', [AuctionController::class, 'show'])
     ->name('auctions.show');
+
+// Seller profile
+Route::get('/sellers/{user}', [App\Http\Controllers\SellerProfileController::class, 'show'])
+    ->name('sellers.show');

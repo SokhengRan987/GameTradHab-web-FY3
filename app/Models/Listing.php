@@ -74,7 +74,7 @@ class Listing extends Model
     // The current highest bidder
     public function highestBidder()
     {
-        return $this->hasMany(User::class, 'highest_bidder_id');
+        return $this->belongsTo(User::class, 'highest_bidder_id');
     }
 
     // <<<< Auction helper methods >>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -113,7 +113,7 @@ class Listing extends Model
         if(!$this->auction_ends_at || $this->hasEnded()){
             return 'Ended';
         }
-        return $this->aution_ends_at->diffForHumans();
+        return $this->auction_ends_at->diffForHumans();
     }
 
     // Scope for active auctions only
@@ -150,7 +150,7 @@ class Listing extends Model
     {
         return $this->hasMany(Transaction::class);
     }
-    
+
     // Reports on this listing
     public function reports()
     {

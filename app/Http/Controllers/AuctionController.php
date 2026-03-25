@@ -79,16 +79,11 @@ class AuctionController extends Controller
     // Show create auction form
     public function create()
     {
-        if (!auth()->check()) {
+        if (!auth()->check()){
             return redirect()->route('login');
         }
 
         $games = Game::where('is_active', true)->get();
-
-        if (!auth()->user()->hasCompletedOnboarding()) {
-            session()->flash('warning', 'Complete seller onboarding to publish, or continue to create a draft.');
-        }
-
         return view('auctions.create', compact('games'));
     }
 
