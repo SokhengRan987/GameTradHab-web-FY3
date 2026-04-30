@@ -169,3 +169,7 @@
         @apply grid-cols-1 md:grid-cols-2;
     }
 }
+.login,
+.register {
+    background: linear-gradient(135deg, #21104a 0%, #3b1d7d 100%);
+}

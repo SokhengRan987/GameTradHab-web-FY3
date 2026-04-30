@@ -14,15 +14,9 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans text-gray-900 antialiased bg-gray-950">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
-            </div>
-
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-gray-900 shadow-md overflow-hidden sm:rounded-lg border border-gray-800 text-white">
+    <body class="font-sans text-white antialiased bg-gradient-to-br from-[#110627] via-[#2b106c] to-[#10071a]">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-[#140622]">
+            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-[#190f3b]/95 shadow-[0_0_40px_rgba(146,94,255,0.22)] overflow-hidden sm:rounded-lg border border-[#7c5cff]/35 text-white">
                 {{ $slot }}
             </div>
         </div>
