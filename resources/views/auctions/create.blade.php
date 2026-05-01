@@ -20,10 +20,10 @@
 
             <div class="mb-4">
                 <label class="block text-xs font-semibold text-gray-400 mb-1.5">Game *</label>
-                <select name="game_id"
+                <select name="game_id" required
                         class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2.5
                                text-sm text-white focus:outline-none focus:border-indigo-500">
-                    <option value="">Select a game</option>
+                    <option value="" disabled selected>Select a game</option>
                     @foreach($games as $game)
                     <option value="{{ $game->id }}"
                         {{ old('game_id') == $game->id ? 'selected' : '' }}>

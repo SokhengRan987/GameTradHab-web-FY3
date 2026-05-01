@@ -173,6 +173,8 @@ Route::get('/listings/{listing}', [ListingController::class, 'show'])
     ->name('listings.show');
 Route::get('/auctions/{listing}', [AuctionController::class, 'show'])
     ->name('auctions.show');
+Route::get('/auctions/{listing}', [AuctionController::class, 'show'])
+    ->name('auctions.show');
 
 // Seller profile
 Route::get('/sellers/{user}', [App\Http\Controllers\SellerProfileController::class, 'show'])

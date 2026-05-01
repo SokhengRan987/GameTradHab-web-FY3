@@ -203,6 +203,37 @@
                                 ${{ number_format(auth()->user()->wallet_balance, 2) }}
                             </strong>
                         </div>
+                        {{-- Share buttons (only seller sees this) --}}
+
+                        <div class="mt-3 pt-3 border-t border-gray-700">
+                            <p class="text-xs text-gray-500 mb-2">🔗 Share your auction</p>
+                            @php
+                                $shareUrl  = urlencode(route('auctions.show', $listing));
+                                $shareText = urlencode('Check out this auction: ' . $listing->title);
+                            @endphp
+                            <div class="flex flex-wrap gap-2">
+                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ $shareUrl }}"
+                                target="_blank"
+                                class="flex-1 text-center bg-blue-700 hover:bg-blue-600 text-white text-xs py-2 rounded-lg transition">
+                                    📘 Facebook
+                                </a>
+                                <a href="https://twitter.com/intent/tweet?url={{ $shareUrl }}&text={{ $shareText }}"
+                                target="_blank"
+                                class="flex-1 text-center bg-sky-600 hover:bg-sky-500 text-white text-xs py-2 rounded-lg transition">
+                                    🐦 X / Twitter
+                                </a>
+                                <a href="https://api.whatsapp.com/send?text={{ $shareText }}%20{{ $shareUrl }}"
+                                target="_blank"
+                                class="flex-1 text-center bg-green-700 hover:bg-green-600 text-white text-xs py-2 rounded-lg transition">
+                                    💬 WhatsApp
+                                </a>
+                                <button onclick="navigator.clipboard.writeText('{{ route('auctions.show', $listing) }}'); this.textContent='✅ Copied!'; setTimeout(()=>this.textContent='🔗 Copy',2000)"
+                                        class="flex-1 text-center bg-gray-700 hover:bg-gray-600 text-white text-xs py-2 rounded-lg transition">
+                                    🔗 Copy
+                                </button>
+                            </div>
+                        </div>
+
                     </form>
                     @else
                     <div class="bg-red-500/10 border border-red-500/20 rounded-xl
