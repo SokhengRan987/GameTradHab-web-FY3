@@ -303,6 +303,17 @@
         </form>
 
         {{-- Listing Grid --}}
+        @php
+            $pendingOwnerCount = Auth::check()
+                ? $listings->filter(fn($listing) => $listing->user_id === auth()->id() && $listing->status !== 'active')->count()
+                : 0;
+        @endphp
+        @if($pendingOwnerCount > 0)
+        <div class="mb-6 rounded-2xl border border-yellow-500/20 bg-yellow-500/10 p-4 text-sm text-yellow-100">
+            Note: your own listing(s) under review are still shown to you here but remain hidden from other buyers until approved.
+        </div>
+        @endif
+
         @forelse($listings as $listing)
         @if($loop->first)
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
@@ -388,6 +399,14 @@
                                      px-2 py-0.5 rounded-full text-gray-400">
                             {{ $listing->platform === 'Mobile' ? '📱' : ($listing->platform === 'PC' ? '🖥️' : '🎮') }}
                             {{ $listing->platform }}
+                        </span>
+                        @endif
+
+                        @if(Auth::check() && auth()->id() === $listing->user_id && $listing->status !== 'active')
+                        <span class="text-[10px] font-bold uppercase tracking-[0.2em]
+                                     bg-yellow-500/10 border border-yellow-500/20
+                                     text-yellow-300 px-2 py-1 rounded-full">
+                            {{ strtoupper($listing->status) }}
                         </span>
                         @endif
                     </div>

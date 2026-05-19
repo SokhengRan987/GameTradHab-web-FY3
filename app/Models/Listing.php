@@ -40,7 +40,9 @@ class Listing extends Model
         'is_flagged',
         'flag_reason',
         'flagged_at',
-
+        'contact_telegram',
+        'contact_whatsapp',
+        'contact_discord',
         'share_count',
     ];
 

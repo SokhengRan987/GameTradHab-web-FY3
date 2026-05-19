@@ -17,6 +17,12 @@
         <span class="text-gray-300 truncate">{{ $listing->title }}</span>
     </div>
 
+    @if(Auth::check() && Auth::id() === $listing->user_id && $listing->status !== 'active')
+    <div class="bg-yellow-500/10 border border-yellow-500/25 rounded-xl p-4 mb-5 text-sm text-yellow-200">
+        Your listing has been updated and is pending admin review. It is hidden from public search until approved, but you can still edit it from your dashboard.
+    </div>
+    @endif
+
     <div class="grid grid-cols-3 gap-6">
 
         {{-- Left — Images + Info --}}
@@ -60,27 +66,113 @@
                     <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Level</div>
                     <div class="font-bold text-sm">{{ $listing->level ?? '—' }}</div>
                 </div>
-                {{--  <div class="bg-gray-900 border border-gray-800 rounded-xl p-3">
-                    <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Server</div>
-                    <div class="font-bold text-sm">{{ $listing->server ?? '—' }}</div>
-                </div>  --}}
+                
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-3">
                     <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Platform</div>
                     <div class="font-bold text-sm">{{ $listing->platform }}</div>
                 </div>
-                {{--  <div class="bg-gray-900 border border-gray-800 rounded-xl p-3">
-                    <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Account Age</div>
-                    <div class="font-bold text-sm">{{ $listing->account_age ?? '—' }}</div>
-                </div> --}}
             </div>
+               {{-- Contact Information --}}
+                @php
+                    $hasTelegram = !empty($listing->contact_telegram);
+                    $hasWhatsapp = !empty($listing->contact_whatsapp);
+                    $hasDiscord  = !empty($listing->contact_discord);
+                    $hasPhone    = !empty($listing->seller_phone);
+                    $hasContact  = $hasTelegram || $hasWhatsapp || $hasDiscord || $hasPhone;
+                @endphp
 
+                @if($hasContact)
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-4 mb-4">
+                    <h3 class="font-bold mb-3">📬 Contact Seller</h3>
+
+                    <div class="flex flex-col gap-2">
+
+                        @if($hasTelegram)
+                        <a href="https://t.me/{{ $listing->contact_telegram }}" target="_blank"
+                        class="flex items-center gap-3 bg-gray-800 hover:bg-gray-700
+                                border border-gray-700 rounded-xl p-3 transition group">
+                            <div class="w-9 h-9 bg-sky-500/15 border border-sky-500/20 rounded-xl
+                                        flex items-center justify-center flex-shrink-0">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="#38bdf8">
+                                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.48 14.617l-2.95-.924c-.642-.204-.657-.642.136-.953l11.57-4.461c.537-.194 1.006.131.326.969z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs text-gray-500 mb-0.5">Telegram</div>
+                                <div class="text-sm font-semibold text-sky-400 group-hover:text-sky-300">
+                                    @{{ $listing->contact_telegram }}
+                                </div>
+                            </div>
+                            <span class="text-gray-600 group-hover:text-gray-400 text-xs">→</span>
+                        </a>
+                        @endif
+
+                        @if($hasWhatsapp)
+                        <a href="https://api.whatsapp.com/send?phone={{ preg_replace('/\D/', '', $listing->contact_whatsapp) }}"
+                        target="_blank"
+                        class="flex items-center gap-3 bg-gray-800 hover:bg-gray-700
+                                border border-gray-700 rounded-xl p-3 transition group">
+                            <div class="w-9 h-9 bg-green-500/15 border border-green-500/20 rounded-xl
+                                        flex items-center justify-center flex-shrink-0 text-lg">
+                                💬
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs text-gray-500 mb-0.5">WhatsApp</div>
+                                <div class="text-sm font-semibold text-green-400 group-hover:text-green-300">
+                                    {{ $listing->contact_whatsapp }}
+                                </div>
+                            </div>
+                            <span class="text-gray-600 group-hover:text-gray-400 text-xs">→</span>
+                        </a>
+                        @endif
+
+                        @if($hasDiscord)
+                        <div class="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-xl p-3">
+                            <div class="w-9 h-9 bg-indigo-500/15 border border-indigo-500/20 rounded-xl
+                                        flex items-center justify-center flex-shrink-0 text-lg">
+                                🎮
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs text-gray-500 mb-0.5">Discord</div>
+                                <div class="text-sm font-semibold text-indigo-400">
+                                    {{ $listing->contact_discord }}
+                                </div>
+                            </div>
+                            <button onclick="navigator.clipboard.writeText('{{ $listing->contact_discord }}');
+                                            this.textContent='✅ Copied'; setTimeout(()=>this.textContent='📋 Copy',2000)"
+                                    class="text-xs text-gray-500 hover:text-white bg-gray-700 hover:bg-gray-600
+                                        px-2 py-1 rounded-lg transition">
+                                📋 Copy
+                            </button>
+                        </div>
+                        @endif
+
+                        @if($hasPhone)
+                        <div class="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-xl p-3">
+                            <div class="w-9 h-9 bg-purple-500/15 border border-purple-500/20 rounded-xl
+                                        flex items-center justify-center flex-shrink-0 text-lg">
+                                📱
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs text-gray-500 mb-0.5">Phone</div>
+                                <div class="text-sm font-semibold text-purple-400">
+                                    {{ $listing->seller_phone }}
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                    </div>
+                </div>
+                @endif
             {{-- Description --}}
-            <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+            
+            {{-- <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
                 <h3 class="font-bold mb-3">📝 Description</h3>
                 <p class="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
                     {{ $listing->description }}
                 </p>
-            </div>
+            </div>--}}
             {{-- Seller Reviews --}}
             @php
                 $sellerReviews = $listing->seller->reviews()->with('reviewer')->take(3)->get();

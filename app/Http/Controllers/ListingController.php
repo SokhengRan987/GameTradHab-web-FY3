@@ -36,8 +36,17 @@ class ListingController extends Controller
             ->get();
 
         $listings = Listing::with(['game', 'seller', 'firstImage'])
-            ->where('status', 'active')
             ->where('type', 'fixed')
+            ->where(function ($query) {
+                $query->where('status', 'active');
+
+                if (Auth::check()) {
+                    $query->orWhere(function ($query) {
+                        $query->where('user_id', Auth::id())
+                              ->whereIn('status', ['pending', 'rejected']);
+                    });
+                }
+            })
             ->when($request->search, fn($q) =>
                 $q->where('title', 'like', '%' . $request->search . '%')
             )
@@ -68,12 +77,16 @@ class ListingController extends Controller
     // Show single listing detail
     public function show(Listing $listing)
     {
-        // Only show active listings to public
-        if ($listing->status !== 'active') {
+        // Only show active listings to the public.
+        // The listing owner may still view their own listing while it is pending review.
+        if ($listing->status !== 'active' && (!Auth::check() || Auth::id() !== $listing->user_id)) {
             abort(404);
         }
 
-        $listing->incrementViews();
+        if ($listing->status === 'active') {
+            $listing->incrementViews();
+        }
+
         $listing->load(['game', 'seller', 'images']);
 
         $related = Listing::active()
@@ -110,8 +123,7 @@ class ListingController extends Controller
             'price'             => 'required|numeric|min:1',
             'rank'              => 'nullable|string|max:100',
             'level'             => 'nullable|integer|min:1',
-            'platform'          => 'required|in:Mobile,PC,Console',
-            'contact_telegram'  => 'nullable|string|max:500',
+            'platform'          => 'required|in:Mobile,PC,Console',           
             'contact_whatsapp'  => 'nullable|string|max:20',
             'contact_discord'   => 'nullable|string|max:100',
             'seller_phone'      => 'nullable|string|max:20',
@@ -120,6 +132,24 @@ class ListingController extends Controller
             'stock_source_note' => 'nullable|string|max:500',
             'images'            => 'required|array|min:1',
             'images.*'          => 'image|mimes:jpg,jpeg,png,webp|max:3072',
+
+            'contact_telegram'  => [
+    'nullable',
+    'string',
+    function ($attribute, $value, $fail) {
+        // Accept full URL or just username
+        if (preg_match('/(?:https?:\/\/)?(?:t\.me|telegram\.me)\/([^\s\/?#]+)/i', $value, $matches)) {
+            $username = $matches[1];
+        } else {
+            $username = ltrim($value, '@');
+        }
+
+        // Telegram username rules: 5-32 chars, letters/numbers/underscore only
+        if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9_]{3,30}[a-zA-Z0-9]$/', $username)) {
+            $fail('Telegram username must be 5–32 characters, letters, numbers and underscores only. Example: @myusername');
+        }
+    },
+],
         ]);
 
         // Parse Telegram link to extract username
@@ -231,7 +261,7 @@ class ListingController extends Controller
             $listing->update([
                 ...$validated,
                 'price'=> $validated['starting_price'],
-                'status' => 'pending',
+                'status' => 'active',
             ]);
         } else {
             $validated = $request->validate([
@@ -245,13 +275,13 @@ class ListingController extends Controller
             ]);
             $listing->update([
                 ...$validated,
-                'status' => 'pending',
+                'status' => 'active',
             ]);
         }
 
         return redirect()
             ->route('dashboard')
-            ->with('success', 'Listing updated and re-submitted for review.');
+            ->with('success', ' Listing updated successfully!');
     }
 
     // Delete listing

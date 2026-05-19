@@ -117,45 +117,77 @@
 
             <div class="flex flex-col gap-3">
                 <div class="flex items-center gap-3">
-                   {{--  <div class="w-8 h-8 bg-sky-500/15 rounded-lg flex items-center
-                    justify-center text-base flex-shrink-0">✈️</div>  --}} 
+                  
                     <div class="flex-1">
-                        <label class="block text-xs font-semibold text-gray-400 mb-1">Telegram</label>
+                        <label class="block text-xs font-semibold text-white -400 mb-1">Telegram</label>
                         <div class="relative">
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">@</span>
+                                        <div style="margin-bottom: 12px;">
+                        <div style="display:flex; align-items:center; background:#1f2937;
+                                    border:1px solid #374151; border-radius:10px; overflow:hidden;
+                                    transition: border-color 0.2s;" id="telegram-wrap">
+
+                            {{-- Icon badge --}}
+                            <div style="display:flex; align-items:center; gap:6px; padding:0 12px;
+                                        border-right:1px solid #374151; height:42px; flex-shrink:0;
+                                        background:#111827;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="#38bdf8">
+                                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.48 14.617l-2.95-.924c-.642-.204-.657-.642.136-.953l11.57-4.461c.537-.194 1.006.131.326.969z"/>
+                                </svg>
+                                <span style="font-size:12px; color:#9ca3af; white-space:nowrap;">@</span>
+                            </div>
+
+                            {{-- Input --}}
                             <input type="text" id="telegramInput" name="contact_telegram"
-                                   value="{{ old('contact_telegram') }}"
-                                   placeholder="username or t.me/username or link"
-                                   autocomplete="off"
-                                   oncopystart="return true"
-                                   class="w-full bg-gray-800 border border-gray-700 rounded-xl
-                                          pl-7 pr-3 py-2 text-sm text-white
-                                          focus:outline-none focus:border-sky-500">
-                        </div>
-                    </div>
-                </div>
+                                value="{{ old('contact_telegram') }}"
+                                placeholder="username"
+                                autocomplete="off"
+                                style="flex:1; background:transparent; border:none; outline:none;
+                                        padding:0 12px; height:42px; font-size:13px; color:#fff;
+                                        caret-color:#38bdf8;"
+                                oninput="validateTelegram(this)">
 
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-green-500/15 rounded-lg flex items-center
-                                justify-center text-base flex-shrink-0">📱</div>
-                    <div class="flex-1">
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">+</span>
-                            <input type="text" name="contact_whatsapp"
-                                   value="{{ old('contact_whatsapp') }}"
-                                   placeholder="60123456789"
-                                   class="w-full bg-gray-800 border border-gray-700 rounded-xl
-                                          pl-7 pr-3 py-2 text-sm text-white
-                                          focus:outline-none focus:border-green-500">
+                            {{-- Status badge --}}
+                            <div id="tg-status" style="padding:0 12px; font-size:12px;
+                                                        display:none; white-space:nowrap;"></div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-indigo-500/15 rounded-lg flex items-center
-                                justify-center text-base flex-shrink-0">🎮</div>
+                        {{-- Helper --}}
+                        <p style="font-size:11px; color:#6b7280; margin:4px 0 0 4px;">
+                            e.g. myusername (min 5 characters)
+                        </p>
+
+                        @error('contact_telegram')
+                            <p style="font-size:12px; color:#f87171; margin:4px 0 0 4px;">
+                                ⚠ {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    <script>
+                    function validateTelegram(input) {
+                        const wrap  = document.getElementById('telegram-wrap');
+                        const badge = document.getElementById('tg-status');
+                        const val   = input.value.replace(/^@/, '').trim();
+
+                        if (!val) {
+                            wrap.style.borderColor  = '#374151';
+                            badge.style.display     = 'none';
+                            return;
+                        }
+
+                        const ok = /^[a-zA-Z0-9][a-zA-Z0-9_]{3,30}[a-zA-Z0-9]$/.test(val);
+
+                        wrap.style.borderColor = ok ? '#22c55e' : '#ef4444';
+                        badge.style.display    = 'block';
+                        badge.style.color      = ok ? '#22c55e' : '#ef4444';
+                        badge.textContent      = ok ? '✓ Valid' : '✗ Invalid';
+                    }
+                    </script>
+
+           
                 </div>
+             </div>
+            </div>
             </div>
         </div>
 

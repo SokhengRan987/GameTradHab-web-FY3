@@ -126,6 +126,10 @@ Route::middleware(['auth', 'admin'])
         ->name('listings.index');
     Route::get('/listings/{listing}', [AdminListingController::class, 'show'])
         ->name('listings.show');
+    Route::patch('/listings/{listing}/approve', [AdminListingController::class, 'approve'])
+        ->name('listings.approve');
+    Route::patch('/listings/{listing}/reject', [AdminListingController::class, 'reject'])
+        ->name('listings.reject');
     Route::patch('/listings/{listing}/remove', [AdminListingController::class, 'remove'])
         ->name('listings.remove');
     Route::patch('/listings/{listing}/unflag', [AdminListingController::class, 'unflag'])

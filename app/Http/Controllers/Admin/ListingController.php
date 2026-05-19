@@ -55,4 +55,24 @@ class ListingController extends Controller
 
         return back()->with('success', 'Listing rejected.');
     }
+
+    // Remove a listing from marketplace
+    public function remove(Listing $listing)
+    {
+        $listing->update(['status' => 'inactive']);
+
+        return back()->with('success', 'Listing removed from marketplace.');
+    }
+
+    // Unflag a listing (clear the admin flag)
+    public function unflag(Listing $listing)
+    {
+        $listing->update([
+            'is_flagged'  => false,
+            'flag_reason' => null,
+            'flagged_at'  => null,
+        ]);
+
+        return back()->with('success', 'Listing unflagged.');
+    }
 }
