@@ -1,10 +1,7 @@
-[phases.setup]
-nixPkgs = ["php82", "php82Extensions.pdo_pgsql", "php82Extensions.mbstring", "php82Extensions.xml", "php82Extensions.curl", "php82Extensions.zip", "composer"]
-
 [phases.build]
 cmds = [
     "composer install --no-dev --optimize-autoloader",
-    "npm ci --prefer-offline || npm install",
+    "npm install",
     "npm run build"
 ]
 
