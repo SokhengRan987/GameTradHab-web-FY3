@@ -6,7 +6,6 @@ use App\Models\Listing;
 use App\Models\Transaction;
 use App\Services\EscrowService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class TransactionController extends Controller
 {
@@ -30,7 +29,7 @@ class TransactionController extends Controller
         return view('transactions.index', compact('purchases', 'sales'));
     }
 
-    // Show single transaction detail
+    // Show single transaction
     public function show(Transaction $transaction)
     {
         if (
@@ -44,7 +43,7 @@ class TransactionController extends Controller
         return view('transactions.show', compact('transaction'));
     }
 
-    // Buyer clicks "Buy Now" - create transaction and show payment page
+    // Buyer clicks "Buy Now" — create transaction and show payment page
     public function store(Request $request)
     {
         $request->validate([
@@ -63,53 +62,44 @@ class TransactionController extends Controller
 
         // Check no active transaction for this listing
         $existing = Transaction::where('listing_id', $listing->id)
-            ->where('buyer_id', Auth::id())
+            ->where('buyer_id', auth()->id())
             ->whereIn('status', ['pending', 'paid', 'escrow'])
             ->first();
+
         if ($existing) {
             return redirect()
                 ->route('transactions.show', $existing)
                 ->with('error', 'You already have an active transaction for this listing.');
         }
 
+        // Calculate fees
         $fee    = round($listing->price * 0.05, 2);
         $payout = round($listing->price - $fee, 2);
 
-        // Credit wallet first (wallet pay method), then hold in escrow
-        $this->walletService->credit(
-            userId:      auth()->id(),
-            amount:      $listing->price,
-            type:        'card_payment',
-            description: 'Payment for: ' . $listing->title
-        );
-
+        // Create transaction with pending_payment status
         $transaction = Transaction::create([
-            'transaction_code' => Transaction::generateCode(),
-            'listing_id' => $listing->id,
-            'buyer_id' => Auth::id(),
-            'seller_id' => $listing->user_id,
-            'amount' => $listing->price,
-            'platform_fee' => $fee,
-            'seller_payout' => $payout,
-            'payment_method' => 'bank_transfer',
-            'status' => 'pending',
+            'transaction_code'  => Transaction::generateCode(),
+            'listing_id'        => $listing->id,
+            'buyer_id'          => auth()->id(),
+            'seller_id'         => $listing->user_id,
+            'amount'            => $listing->price,
+            'platform_fee'      => $fee,
+            'seller_payout'     => $payout,
+            'payment_method'    => 'bank_transfer',
+            'status'            => 'pending',
         ]);
 
-        // Hold funds in escrow
-        // $this->escrowService->hold($transaction);
-
-        // Reverse the listing so others can't buy it
+        // Reserve the listing so others can't buy it
         $listing->update(['status' => 'reserved']);
 
         return redirect()
             ->route('transactions.payment', $transaction);
     }
 
-
     // Show payment instructions page
     public function payment(Transaction $transaction)
     {
-        if ($transaction->buyer_id !== Auth::id()) {
+        if ($transaction->buyer_id !== auth()->id()) {
             abort(403);
         }
 
@@ -126,7 +116,7 @@ class TransactionController extends Controller
     // Buyer clicks "I Have Paid"
     public function markPaid(Request $request, Transaction $transaction)
     {
-        if ($transaction->buyer_id !== Auth::id()) {
+        if ($transaction->buyer_id !== auth()->id()) {
             abort(403);
         }
 
@@ -139,19 +129,20 @@ class TransactionController extends Controller
         ]);
 
         $transaction->update([
-            'status' => 'paid',
-            'buyer_paid_at' => now(),
+            'status'       => 'paid',
+            'buyer_paid_at'=> now(),
             'payment_note' => $request->payment_note,
         ]);
 
         return redirect()
             ->route('transactions.show', $transaction)
-            ->with('success', 'Payment marked! Admin will verify within 1-3 hours.');
+            ->with('success', '✅ Payment marked! Admin will verify within 1-3 hours.');
     }
 
-    // Buyer confirms receipt - release escrow to seller
-    public function confirm(Transaction $transaction) {
-        if ($transaction->buyer_id !== Auth::id()) {
+    // Buyer confirms receipt — release escrow to seller
+    public function confirm(Transaction $transaction)
+    {
+        if ($transaction->buyer_id !== auth()->id()) {
             abort(403);
         }
 
@@ -163,12 +154,13 @@ class TransactionController extends Controller
 
         return redirect()
             ->route('transactions.show', $transaction)
-            ->with('success', 'Payment release to seller. Thank You!');
+            ->with('success', '🎉 Payment released to seller. Thank you!');
     }
 
     // Buyer raises dispute
-    public function dispute(Request $request, Transaction $transaction) {
-        if ($transaction->buyer_id !== Auth::id()) {
+    public function dispute(Request $request, Transaction $transaction)
+    {
+        if ($transaction->buyer_id !== auth()->id()) {
             abort(403);
         }
 
@@ -176,7 +168,7 @@ class TransactionController extends Controller
             return back()->with('error', 'Cannot raise dispute on this transaction.');
         }
 
-        $transaction->update(['status' => 'dispute']);
+        $transaction->update(['status' => 'disputed']);
 
         return redirect()
             ->route('transactions.show', $transaction)
@@ -184,8 +176,9 @@ class TransactionController extends Controller
     }
 
     // Buyer cancels before paying
-    public function cancel(Transaction $transaction) {
-        if ($transaction->buyer_id !== Auth::id()) {
+    public function cancel(Transaction $transaction)
+    {
+        if ($transaction->buyer_id !== auth()->id()) {
             abort(403);
         }
 

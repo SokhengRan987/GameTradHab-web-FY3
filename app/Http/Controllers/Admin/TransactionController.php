@@ -45,7 +45,7 @@ class TransactionController extends Controller
         return back()->with('success', 'Payment confirmed. Escrow activated. Seller notified.');
     }
 
-    // Admin refunds buyer after dispute
+    // Admin releases escrow to seller (dispute resolved)
     public function releaseEscrow(Transaction $transaction)
     {
         if (!in_array($transaction->status, ['escrow', 'disputed'])) {
