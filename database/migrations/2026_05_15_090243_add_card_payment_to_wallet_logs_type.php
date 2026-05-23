@@ -7,17 +7,44 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE wallet_logs DROP CONSTRAINT wallet_logs_type_check");
+        try {
+            DB::statement("ALTER TABLE wallet_logs DROP CHECK wallet_logs_type_check");
+        } catch (\Exception $e) {
+            // Ignore if constraint doesn't exist
+        }
 
-        DB::statement("ALTER TABLE wallet_logs ADD CONSTRAINT wallet_logs_type_check 
-            CHECK (type IN ('topup', 'purchase', 'payout', 'refund', 'withdrawal', 'card_payment'))");
+        DB::statement("
+            ALTER TABLE wallet_logs
+            ADD CONSTRAINT wallet_logs_type_check
+            CHECK (type IN (
+                'topup',
+                'purchase',
+                'payout',
+                'refund',
+                'withdrawal',
+                'card_payment'
+            ))
+        ");
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE wallet_logs DROP CONSTRAINT wallet_logs_type_check");
+        try {
+            DB::statement("ALTER TABLE wallet_logs DROP CHECK wallet_logs_type_check");
+        } catch (\Exception $e) {
+            // Ignore if constraint doesn't exist
+        }
 
-        DB::statement("ALTER TABLE wallet_logs ADD CONSTRAINT wallet_logs_type_check 
-            CHECK (type IN ('topup', 'purchase', 'payout', 'refund', 'withdrawal'))");
+        DB::statement("
+            ALTER TABLE wallet_logs
+            ADD CONSTRAINT wallet_logs_type_check
+            CHECK (type IN (
+                'topup',
+                'purchase',
+                'payout',
+                'refund',
+                'withdrawal'
+            ))
+        ");
     }
 };
