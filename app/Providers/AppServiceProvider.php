@@ -31,6 +31,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+          if (config('app.env') === 'production') {
+        \URL::forceScheme('https');
+    }
         Gate::policy(Listing::class, ListingPolicy::class);
         Paginator::useTailwind();
     }
