@@ -11,14 +11,27 @@ class ListingSeeder extends Seeder
 {
     public function run(): void
     {
-        $seller = User::where('email', 'seller@test.com')->first();
-        $mlbb   = Game::where('slug', 'mobile-legends')->first();
-        $val    = Game::where('slug', 'valorant')->first();
-        $pubg   = Game::where('slug', 'pubg-mobile')->first();
+        // Create seller if not exists
+        $seller = User::firstOrCreate(
+            ['email' => 'seller@test.com'],
+            [
+                'name' => 'Demo Seller',
+                'password' => bcrypt('password'),
+            ]
+        );
+
+        // Get games
+        $mlbb = Game::where('slug', 'mobile-legends')->first();
+        $val  = Game::where('slug', 'valorant')->first();
+        $pubg = Game::where('slug', 'pubg-mobile')->first();
+
+        // Stop seeder if games missing
+        if (!$mlbb || !$val || !$pubg) {
+            return;
+        }
 
         $listings = [
             [
-                'user_id'     => $seller->id,
                 'game_id'     => $mlbb->id,
                 'title'       => 'Mythic Account | 150 Skins | All Heroes',
                 'description' => 'Selling my main Mythic account. All heroes unlocked, 150+ skins. No ban history.',
@@ -32,7 +45,6 @@ class ListingSeeder extends Seeder
                 'is_featured' => true,
             ],
             [
-                'user_id'     => $seller->id,
                 'game_id'     => $val->id,
                 'title'       => 'Immortal 3 | Full Agent Collection',
                 'description' => 'Valorant account with Immortal 3 rank. All agents unlocked. Rare skins included.',
@@ -46,7 +58,6 @@ class ListingSeeder extends Seeder
                 'is_featured' => false,
             ],
             [
-                'user_id'     => $seller->id,
                 'game_id'     => $pubg->id,
                 'title'       => 'Conqueror Season 28 | ACE M762',
                 'description' => 'PUBG Mobile Conqueror account. Season 28 border. Multiple rare outfits.',
@@ -60,7 +71,6 @@ class ListingSeeder extends Seeder
                 'is_featured' => false,
             ],
             [
-                'user_id'     => $seller->id,
                 'game_id'     => $mlbb->id,
                 'title'       => 'Legend Account | 80 Skins | Clean',
                 'description' => 'Clean Legend account. 80 skins, all heroes. Perfect for ranked grind.',
@@ -76,7 +86,12 @@ class ListingSeeder extends Seeder
         ];
 
         foreach ($listings as $data) {
-            Listing::create($data);
+            Listing::firstOrCreate(
+                ['title' => $data['title']],
+                array_merge($data, [
+                    'user_id' => $seller->id,
+                ])
+            );
         }
     }
 }
