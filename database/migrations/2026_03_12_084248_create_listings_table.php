@@ -27,7 +27,7 @@ return new class extends Migration
             $table->json('tags')->nullable();
             $table->enum('type', ['fixed', 'auction'])->default('fixed');
             $table->enum('status', [
-                'pending', 'active', 'sold', 'rejected', 'inactive'
+                'pending', 'active', 'sold', 'rejected', 'inactive', 'reserved'
             ])->default('pending');
             $table->text('admin_notes')->nullable();
             $table->boolean('is_featured')->default(false);
