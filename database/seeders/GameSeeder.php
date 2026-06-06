@@ -2,19 +2,14 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Game;
 
 class GameSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        //
-         $games = [
+        $games = [
             [
                 'name'           => 'Mobile Legends',
                 'slug'           => 'mobile-legends',
@@ -61,8 +56,12 @@ class GameSeeder extends Seeder
                 'is_active'      => true,
             ],
         ];
+
         foreach ($games as $game) {
-            Game::create($game);
+            Game::firstOrCreate(
+                ['slug' => $game['slug']],
+                $game
+            );
         }
     }
 }

@@ -23,7 +23,6 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(AuctionService::class, function ($app) {
             return new AuctionService(
-                $app->make(WalletService::class),
                 $app->make(EscrowService::class),
             );
         });
@@ -31,6 +30,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if (config('app.env') === 'production') {
+            \URL::forceScheme('https');
+        }
+
         Gate::policy(Listing::class, ListingPolicy::class);
         Paginator::useTailwind();
     }

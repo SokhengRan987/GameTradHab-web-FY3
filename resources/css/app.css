@@ -1,9 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Gaming Theme Styles */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
 
 @layer base {
     html {
@@ -12,7 +13,7 @@
 
     body {
         background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-        font-family: 'Inter', sans-serif;
+        font-family: "Inter", sans-serif;
         overflow-x: hidden;
     }
 
@@ -44,7 +45,7 @@
     }
 
     .btn-gaming::before {
-        content: '';
+        content: "";
         @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
                -translate-x-full transition-transform duration-700;
     }
@@ -105,11 +106,12 @@
     }
 
     .hero-gaming::before {
-        content: '';
+        content: "";
         @apply absolute inset-0 opacity-10;
-        background-image: radial-gradient(circle at 25% 25%, #00ff88 2px, transparent 2px),
-                          radial-gradient(circle at 75% 75%, #0088ff 2px, transparent 2px),
-                          radial-gradient(circle at 50% 50%, #ff0080 2px, transparent 2px);
+        background-image:
+            radial-gradient(circle at 25% 25%, #00ff88 2px, transparent 2px),
+            radial-gradient(circle at 75% 75%, #0088ff 2px, transparent 2px),
+            radial-gradient(circle at 50% 50%, #ff0080 2px, transparent 2px);
         background-size: 50px 50px;
     }
 
@@ -145,18 +147,32 @@
 
 /* Custom Keyframes */
 @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
 @keyframes glow {
-    0% { box-shadow: 0 0 5px rgba(0, 255, 136, 0.5); }
-    100% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.8); }
+    0% {
+        box-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+    }
+    100% {
+        box-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+    }
 }
 
 @keyframes pulse-neon {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
 }
 
 /* Responsive Design */

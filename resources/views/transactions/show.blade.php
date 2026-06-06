@@ -186,7 +186,7 @@
             </div>
             @endif
             {{-- Review Section --}}
-            @if($transaction->status === 'completed' && $transaction->buyer_id === auth()->id())
+            @if(in_array($transaction->status, ['escrow', 'completed']) && $transaction->buyer_id === auth()->id())
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
 
                 @if($transaction->hasReview())

@@ -7,20 +7,16 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // ✅ Only run for MySQL
-        if (DB::getDriverName() !== 'mysql') {
-            return;
-        }
-
-        try {
-            DB::statement("ALTER TABLE wallet_logs DROP CHECK wallet_logs_type_check");
-        } catch (\Exception $e) {
-            // ignore if not exists
-        }
+        // Drop constraint if it exists
+        DB::statement("
+            DO $$ BEGIN
+                ALTER TABLE wallet_logs DROP CONSTRAINT IF EXISTS wallet_logs_type_check;
+            EXCEPTION WHEN others THEN NULL;
+            END $$;
+        ");
 
         DB::statement("
-            ALTER TABLE wallet_logs
-            ADD CONSTRAINT wallet_logs_type_check
+            ALTER TABLE wallet_logs ADD CONSTRAINT wallet_logs_type_check
             CHECK (type IN (
                 'topup',
                 'purchase',
@@ -34,24 +30,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        if (DB::getDriverName() !== 'mysql') {
-            return;
-        }
-
-        try {
-            DB::statement("ALTER TABLE wallet_logs DROP CHECK wallet_logs_type_check");
-        } catch (\Exception $e) {}
-
-        DB::statement("
-            ALTER TABLE wallet_logs
-            ADD CONSTRAINT wallet_logs_type_check
-            CHECK (type IN (
-                'topup',
-                'purchase',
-                'payout',
-                'refund',
-                'withdrawal'
-            ))
-        ");
+        DB::statement("ALTER TABLE wallet_logs DROP CONSTRAINT IF EXISTS wallet_logs_type_check");
     }
 };

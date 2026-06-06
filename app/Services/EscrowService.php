@@ -12,21 +12,19 @@ class EscrowService
         private WalletService $wallet
     ) {}
 
-    // ── Called when buyer clicks "Buy Now" ───────────
-    // Deducts from buyer wallet and holds in escrow
-    public function hold(Transaction $transaction): EscrowLog
+    // ── Called when buyer clicks "Buy Now" ───────────────────────────────────
+    // Creates escrow log and holds funds
+    public function hold(Transaction $transaction): void
     {
-        return DB::transaction(function () use ($transaction) {
+        DB::transaction(function () use ($transaction) {
 
-            // Create escrow log
             EscrowLog::create([
                 'transaction_id' => $transaction->id,
-                'held_amount' => $transaction->amount,
-                'status' => 'held',
-                'held_at' => now(),
+                'held_amount'    => $transaction->amount,
+                'status'         => 'held',
+                'held_at'        => now(),
             ]);
 
-            // Update transaction status to escrow
             $transaction->update([
                 'status'          => 'escrow',
                 'review_deadline' => now()->addHours(48),
@@ -36,13 +34,13 @@ class EscrowService
         });
     }
 
-    // ── Called when buyer clicks "Confirm Receipt" ───
-    // Releases escrow and pays the seller
+    // ── Called when buyer clicks "Confirm Receipt" ───────────────────────────
+    // Pays seller and marks transaction completed
     public function release(Transaction $transaction, string $releasedBy = 'buyer'): void
     {
         DB::transaction(function () use ($transaction, $releasedBy) {
 
-            // Pay the seller (price minus platform fee)
+            // Pay the seller
             $this->wallet->credit(
                 userId:      $transaction->seller_id,
                 amount:      $transaction->seller_payout,
@@ -51,21 +49,24 @@ class EscrowService
                 description: 'Sale payout: ' . $transaction->listing->title
             );
 
-            // Mark escrow as released
-            $transaction->escrowLog->update([
-                'status'      => 'released',
-                'released_by' => $releasedBy,
-                'released_at' => now(),
-            ]);
+            // Update escrow log only if it exists
+            $escrowLog = $transaction->escrowLog;
+            if ($escrowLog) {
+                $escrowLog->update([
+                    'status'      => 'released',
+                    'released_by' => $releasedBy,
+                    'released_at' => now(),
+                ]);
+            }
 
             // Mark transaction as completed
             $transaction->update([
-                'status'              => 'completed',
-                'buyer_confirmed_at'  => now(),
-                'escrow_released_at'  => now(),
+                'status'             => 'completed',
+                'buyer_confirmed_at' => now(),
+                'escrow_released_at' => now(),
             ]);
 
-            // Mark the listing as sold
+            // Mark listing as sold
             $transaction->listing->update(['status' => 'sold']);
 
             // Increment seller total sales count
@@ -73,13 +74,12 @@ class EscrowService
         });
     }
 
-    // ── Called by admin when dispute is resolved ─────
-    // Refunds the buyer and reopens the listing
+    // ── Called by admin when dispute is resolved ─────────────────────────────
+    // Refunds buyer and reopens listing
     public function refund(Transaction $transaction): void
     {
         DB::transaction(function () use ($transaction) {
 
-            // Update escrow log
             $escrowLog = $transaction->escrowLog;
             if ($escrowLog) {
                 $escrowLog->update([
@@ -88,10 +88,8 @@ class EscrowService
                     'released_at' => now(),
                 ]);
             }
-            // Mark transaction as refunded
-            $transaction->update(['status' => 'refunded']);
 
-            // Make the listing active again so it can be sold
+            $transaction->update(['status' => 'refunded']);
             $transaction->listing->update(['status' => 'active']);
         });
     }

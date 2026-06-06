@@ -86,11 +86,11 @@
                     <input type="number" name="price" id="priceInput" value="{{ old('price') }}" step="0.01" min="1" required
                            class="w-full bg-gray-800 border border-gray-700 rounded-xl pl-8 pr-4 py-3 text-sm">
                 </div>
-                <div class="mt-3 bg-green-500/10 border border-green-500/20 rounded-xl px-4 py-3 flex justify-between">
+               {{--  <div class="mt-3 bg-green-500/10 border border-green-500/20 rounded-xl px-4 py-3 flex justify-between">
                     <span class="text-gray-400">You will receive:</span>
                     <strong class="text-green-400" id="payoutDisplay">$0.00</strong>
                 </div>
-            </div>
+            </div>--}} 
         </div>
 
         {{-- CONTACT --}}

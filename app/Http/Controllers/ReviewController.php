@@ -16,9 +16,9 @@ class ReviewController extends Controller
             abort(403);
         }
 
-        // Transaction must be completed
-        if ($transaction->status !== 'completed') {
-            return back()->with('error', 'You can only review completed transactions.');
+        // Transaction can be reviewed once payment is confirmed and escrow is active
+        if (! in_array($transaction->status, ['escrow', 'completed'])) {
+            return back()->with('error', 'You can only review transactions once payment is confirmed.');
         }
 
         // One review per transaction

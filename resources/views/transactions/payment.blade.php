@@ -1,202 +1,216 @@
 @extends('layouts.app')
-@section('title', 'Complete Payment')
+@section('title', 'Secure Checkout')
 
 @section('content')
-<div class="max-w-lg mx-auto px-4 py-8">
+<div class="max-w-5xl mx-auto px-4 py-8">
 
     {{-- Header --}}
-    <div class="text-center mb-6">
-        <div class="text-4xl mb-2">🏦</div>
-        <h1 class="font-game text-xl font-bold text-white tracking-wider mb-1">
-            COMPLETE PAYMENT
-        </h1>
-        <p class="text-xs text-gray-500">
-            Transfer the exact amount to secure your order
-        </p>
+    <div class="flex items-center gap-3 mb-6">
+        <a href="{{ url()->previous() }}"
+           class="w-9 h-9 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center
+                  justify-center text-gray-400 transition text-lg">←</a>
+        <h1 class="text-xl font-bold">Secure Checkout</h1>
+        <span class="ml-auto flex items-center gap-1.5 text-xs text-green-400">
+            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+            256-bit SSL Encrypted
+        </span>
     </div>
 
-    {{-- Order Summary --}}
-    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 mb-4">
-        <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
-            Order Summary
-        </div>
-        <div class="flex items-center gap-3 mb-4">
-            <div class="w-12 h-10 bg-gray-800 rounded-xl flex items-center
-                        justify-center text-xl flex-shrink-0">🎮</div>
-            <div class="flex-1 min-w-0">
-                <div class="font-semibold text-sm text-white truncate">
-                    {{ $transaction->listing->title }}
-                </div>
-                <div class="text-xs text-gray-400">
-                    {{ $transaction->listing->game->name }}
-                    · Seller: {{ $transaction->seller->name }}
-                </div>
-            </div>
-        </div>
-        <div class="bg-gray-800 rounded-xl p-3 flex justify-between items-center">
-            <span class="text-sm text-gray-400">Total to pay</span>
-            <span class="font-game font-bold text-2xl text-green-400">
-                ${{ number_format($transaction->amount, 2) }}
-            </span>
-        </div>
-    </div>
+    <div class="grid grid-cols-3 gap-6">
 
-    {{-- Bank Details --}}
-    <div class="bg-gray-900 border border-indigo-500/30 rounded-2xl p-4 mb-4"
-         style="background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(10,10,20,0.9))">
+        {{-- LEFT --}}
+        <div class="col-span-2 flex flex-col gap-4">
 
-        <div class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-4">
-            💳 Bank Transfer Details
-        </div>
-
-        <div class="flex flex-col gap-3">
-            @foreach([
-                ['Bank Name',       $bank['bank_name']],
-                ['Account Name',    $bank['bank_account_name']],
-                ['Account Number',  $bank['bank_account_number']],
-                ['Swift/BIC Code',  $bank['bank_swift']],
-            ] as [$label, $value])
-            <div class="flex items-center justify-between bg-gray-800/50
-                        rounded-xl px-3 py-2.5">
-                <span class="text-xs text-gray-500">{{ $label }}</span>
-                <div class="flex items-center gap-2">
-                    <span class="font-bold text-sm text-white">{{ $value }}</span>
-                    <button onclick="copy('{{ $value }}')"
-                            class="text-xs text-indigo-400 hover:text-indigo-300 transition">
-                        📋
-                    </button>
-                </div>
-            </div>
-            @endforeach
-
-            {{-- Reference Code --}}
-            <div class="bg-yellow-500/10 border border-yellow-500/30
-                        rounded-xl px-3 py-2.5">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <div class="text-xs text-yellow-400/70 mb-0.5">
-                            ⚠️ Payment Reference (REQUIRED)
+            {{-- Item --}}
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gray-800 rounded-xl flex items-center
+                                justify-center text-3xl flex-shrink-0">🎮</div>
+                    <div class="flex-1">
+                        <div class="font-bold">{{ $transaction->listing->title }}</div>
+                        <div class="text-sm text-gray-400 mt-0.5">
+                            {{ $transaction->listing->game->name }}
+                            @if($transaction->listing->rank) · {{ $transaction->listing->rank }} @endif
+                            @if($transaction->listing->server) · {{ $transaction->listing->server }} @endif
                         </div>
-                        <div class="font-game font-bold text-yellow-400 text-lg tracking-wider">
-                            {{ $transaction->transaction_code }}
+                        <div class="text-xs text-gray-500 mt-1">
+                            {{ $transaction->listing->platform }} · Delivery: Instant
                         </div>
                     </div>
-                    <button onclick="copy('{{ $transaction->transaction_code }}')"
-                            class="text-xs text-yellow-400 hover:text-yellow-300 transition">
-                        📋 Copy
-                    </button>
                 </div>
-                <p class="text-xs text-gray-500 mt-1">
-                    You MUST include this reference when transferring.
-                    Without it we cannot match your payment.
+
+                {{-- Seller --}}
+                <div class="mt-4 pt-4 border-t border-gray-800 flex items-center gap-3">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center
+                                justify-center text-sm font-bold flex-shrink-0">
+                        {{ strtoupper(substr($transaction->seller->name, 0, 1)) }}
+                    </div>
+                    <div class="flex-1">
+                        <span class="text-sm font-semibold">{{ $transaction->seller->name }}</span>
+                        @if($transaction->seller->is_verified)
+                        <span class="ml-2 text-xs text-sky-400 bg-sky-500/10 border border-sky-500/20
+                                     px-2 py-0.5 rounded-full">✓ Verified since {{ $transaction->seller->created_at->format('Y') }}</span>
+                        @endif
+                        @if($transaction->seller->rating_avg > 0)
+                        <span class="ml-2 text-xs text-yellow-400">
+                            ⭐ {{ number_format($transaction->seller->rating_avg, 1) }}
+                            ({{ $transaction->seller->total_sales }} reviews)
+                        </span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            {{-- Payment Method --}}
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
+                <div class="text-sm font-bold mb-4">Payment Method</div>
+
+                <div class="flex flex-col gap-3" id="payment-methods">
+
+                    {{-- Credit Card --}}
+                    <label id="method-card"
+                           class="flex items-center gap-4 border-2 border-indigo-500
+                                  bg-indigo-500/5 rounded-xl p-4 cursor-pointer transition">
+                        <div class="w-5 h-5 rounded-full border-2 border-indigo-500
+                                    flex items-center justify-center flex-shrink-0" id="dot-card">
+                            <div class="w-2.5 h-2.5 bg-indigo-500 rounded-full"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-semibold text-sm">Credit / Debit Card</div>
+                            <div class="text-xs text-indigo-400 mt-0.5">Pay in one click next time!</div>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="bg-blue-600 text-white text-xs px-2 py-0.5 rounded font-bold">VISA</span>
+                            <span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded font-bold">MC</span>
+                            <span class="bg-blue-500 text-white text-xs px-2 py-0.5 rounded font-bold">AMEX</span>
+                            <span class="text-xs text-gray-500">+1</span>
+                        </div>
+                        <input type="radio" name="payment_method" value="card" class="hidden" checked>
+                    </label>
+
+                    {{-- Google Pay --}}
+                    <label id="method-google"
+                           class="flex items-center gap-4 border-2 border-gray-700
+                                  bg-gray-800/50 rounded-xl p-4 cursor-pointer
+                                  hover:border-gray-600 transition"
+                           onclick="selectMethod('google')">
+                        <div class="w-5 h-5 rounded-full border-2 border-gray-600
+                                    flex items-center justify-center flex-shrink-0" id="dot-google"></div>
+                        <div class="flex-1">
+                            <div class="font-semibold text-sm">Google Pay</div>
+                        </div>
+                        <span class="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded font-bold">G Pay</span>
+                        <input type="radio" name="payment_method" value="google" class="hidden">
+                    </label>
+
+                    {{-- Crypto --}}
+                    <label id="method-crypto"
+                           class="flex items-center gap-4 border-2 border-gray-700
+                                  bg-gray-800/50 rounded-xl p-4 cursor-pointer
+                                  hover:border-gray-600 transition"
+                           onclick="selectMethod('crypto')">
+                        <div class="w-5 h-5 rounded-full border-2 border-gray-600
+                                    flex items-center justify-center flex-shrink-0" id="dot-crypto"></div>
+                        <div class="flex-1">
+                            <div class="font-semibold text-sm">Cryptocurrency</div>
+                        </div>
+                        <div class="flex gap-1">
+                            <span class="text-lg">₿</span>
+                            <span class="text-lg">Ξ</span>
+                        </div>
+                        <input type="radio" name="payment_method" value="crypto" class="hidden">
+                    </label>
+
+                </div>
+            </div>
+
+            {{-- Trust badges --}}
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-3 text-center">
+                    <div class="text-xl mb-1">🔒</div>
+                    <div class="text-xs font-semibold">PCI DSS</div>
+                    <div class="text-xs text-gray-500">Certified</div>
+                </div>
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-3 text-center">
+                    <div class="text-xl mb-1">🛡️</div>
+                    <div class="text-xs font-semibold">SafeKey</div>
+                    <div class="text-xs text-gray-500">Protected</div>
+                </div>
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-3 text-center">
+                    <div class="text-xl mb-1">✅</div>
+                    <div class="text-xs font-semibold">ID Check</div>
+                    <div class="text-xs text-gray-500">Verified</div>
+                </div>
+            </div>
+
+        </div>
+
+        {{-- RIGHT — Order Summary --}}
+        <div>
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 sticky top-20">
+                <div class="text-sm font-bold mb-4">Order Summary</div>
+
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-400">Order Price</span>
+                    <span>${{ number_format($transaction->amount, 2) }}</span>
+                </div>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-400">Payment Fees</span>
+                    <span class="text-red-400">-${{ number_format($transaction->platform_fee, 2) }}</span>
+                </div>
+                <div class="flex justify-between text-sm mb-4">
+                    <span class="text-gray-400">Loyalty Points</span>
+                    <span class="text-yellow-400">+ {{ round($transaction->amount * 100) }} 🏆</span>
+                </div>
+
+                <div class="border-t border-gray-800 pt-4 mb-5">
+                    <div class="flex justify-between font-bold text-base">
+                        <span>Total:</span>
+                        <span class="text-white">${{ number_format($transaction->amount, 2) }}</span>
+                    </div>
+                </div>
+
+                {{-- CTA --}}
+                <a href="{{ route('transactions.card', $transaction) }}"
+                   class="block w-full text-center bg-yellow-500 hover:bg-yellow-400
+                          text-gray-900 font-bold py-3.5 rounded-xl transition
+                          flex items-center justify-center gap-2 text-sm">
+                    🔒 Enter card details →
+                </a>
+
+                <p class="text-xs text-gray-600 text-center mt-3">
+                    By placing order, you confirm you agree to our Terms & Privacy Policy.
                 </p>
+
+                <div class="mt-4 pt-4 border-t border-gray-800">
+                    <div class="flex items-center gap-2 text-xs text-green-400">
+                        <span>✅</span>
+                        <span>Safe & Secure Payment — 100% protected by escrow</span>
+                    </div>
+                </div>
             </div>
         </div>
+
     </div>
-
-    {{-- Steps --}}
-    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 mb-4">
-        <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
-            How to Complete
-        </div>
-        <div class="flex flex-col gap-3">
-            @foreach([
-                ['1', 'Open your banking app or go to your bank'],
-                ['2', 'Transfer <strong class="text-green-400">${{ number_format($transaction->amount, 2) }}</strong> to the account above'],
-                ['3', 'Use <strong class="text-yellow-400">{{ $transaction->transaction_code }}</strong> as payment reference'],
-                ['4', 'Click "I Have Paid" below'],
-                ['5', 'Admin verifies within 1-3 hours → account details sent'],
-            ] as [$num, $text])
-            <div class="flex items-start gap-3">
-                <span class="w-5 h-5 bg-indigo-600 rounded-full flex items-center
-                             justify-center text-white text-xs font-black flex-shrink-0 mt-0.5">
-                    {{ $num }}
-                </span>
-                <span class="text-sm text-gray-300">{!! $text !!}</span>
-            </div>
-            @endforeach
-        </div>
-    </div>
-
-    {{-- I Have Paid Form --}}
-    <form method="POST" action="{{ route('transactions.paid', $transaction) }}"
-          class="mb-3">
-        @csrf
-
-        <div class="mb-3">
-            <label class="block text-xs font-semibold text-gray-400 mb-1.5">
-                Payment Note (Optional)
-            </label>
-            <input type="text" name="payment_note"
-                   placeholder="e.g. Paid via Maybank2u at 3:00 PM"
-                   class="w-full bg-gray-800 border border-gray-700 rounded-xl
-                          px-3 py-2.5 text-sm text-white placeholder-gray-600
-                          focus:outline-none focus:border-indigo-500">
-        </div>
-
-        <button type="submit"
-                class="w-full font-game font-bold text-xs tracking-wider
-                       bg-green-600 hover:bg-green-500 text-white
-                       py-3.5 rounded-xl transition"
-                style="box-shadow: 0 0 20px rgba(34,197,94,0.3)"
-                onclick="return confirm('Confirm that you have transferred ${{ number_format($transaction->amount, 2) }}?')">
-            ✅ I HAVE PAID — NOTIFY ADMIN
-        </button>
-
-    </form>
-
-    {{-- Cancel --}}
-    <form method="POST" action="{{ route('transactions.cancel', $transaction) }}"
-          class="text-center">
-        @csrf
-        <button type="submit"
-                class="text-xs text-gray-600 hover:text-red-400 transition"
-                onclick="return confirm('Cancel this order? The listing will become available again.')">
-            ✕ Cancel Order
-        </button>
-    </form>
-
-    {{-- Timer --}}
-    <div class="text-center mt-4">
-        <p class="text-xs text-gray-600">
-            ⏰ This order is reserved for
-            <span class="text-yellow-400 font-bold" id="timer">24:00:00</span>
-            — please complete payment before it expires.
-        </p>
-    </div>
-
 </div>
-@endsection
 
-@push('scripts')
 <script>
-function copy(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        const btn = event.target;
-        const orig = btn.textContent;
-        btn.textContent = '✅';
-        setTimeout(() => btn.textContent = orig, 1500);
+function selectMethod(method) {
+    ['card','google','crypto'].forEach(m => {
+        const label = document.getElementById('method-' + m);
+        const dot   = document.getElementById('dot-' + m);
+        if (m === method) {
+            label.classList.add('border-indigo-500','bg-indigo-500/5');
+            label.classList.remove('border-gray-700','bg-gray-800/50');
+            dot.innerHTML = '<div class="w-2.5 h-2.5 bg-indigo-500 rounded-full"></div>';
+            dot.classList.replace('border-gray-600','border-indigo-500');
+        } else {
+            label.classList.remove('border-indigo-500','bg-indigo-500/5');
+            label.classList.add('border-gray-700','bg-gray-800/50');
+            dot.innerHTML = '';
+            dot.classList.replace('border-indigo-500','border-gray-600');
+        }
     });
 }
-
-// 24 hour countdown from transaction creation
-const created = new Date('{{ $transaction->created_at->toISOString() }}');
-const expires = new Date(created.getTime() + 24 * 60 * 60 * 1000);
-
-function updateTimer() {
-    const now  = new Date();
-    const diff = expires - now;
-    if (diff <= 0) {
-        document.getElementById('timer').textContent = 'EXPIRED';
-        return;
-    }
-    const h = Math.floor(diff / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    document.getElementById('timer').textContent =
-        `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-}
-updateTimer();
-setInterval(updateTimer, 1000);
 </script>
-@endpush
+@endsection

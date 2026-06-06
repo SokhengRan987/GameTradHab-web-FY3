@@ -94,6 +94,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('transactions.cancel');
     Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])
         ->name('transactions.show');
+    Route::get('/transactions/{transaction}/card', [TransactionController::class, 'card'])
+    ->name('transactions.card');
+    Route::post('/transactions/{transaction}/pay', [TransactionController::class, 'pay'])
+    ->name('transactions.pay');
+    
 
     // Reviews
     Route::post('/transactions/{transaction}/review', [ReviewController::class, 'store'])

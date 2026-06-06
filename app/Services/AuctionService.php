@@ -12,10 +12,10 @@ use Exception;
 class AuctionService
 {
     public function __construct(
-        private WalletService $walletService,
         private EscrowService $escrowService,
     ) {}
 
+    // ── Place a bid ───────────────────────────────────────────────────────────
     public function placeBid(Listing $listing, User $bidder, float $amount): Bid
     {
         return DB::transaction(function () use ($listing, $bidder, $amount) {
@@ -24,6 +24,7 @@ class AuctionService
 
             $this->validateBid($listing, $bidder, $amount);
 
+            // Mark previous bids as outbid
             if ($listing->highest_bidder_id) {
                 Bid::where('listing_id', $listing->id)
                     ->where('status', 'active')
@@ -46,6 +47,7 @@ class AuctionService
         });
     }
 
+    // ── End auction and create transaction for winner ─────────────────────────
     public function endAuction(Listing $listing): void
     {
         DB::transaction(function () use ($listing) {
@@ -56,6 +58,7 @@ class AuctionService
                 return;
             }
 
+            // No bids — mark inactive
             if (!$listing->highest_bidder_id) {
                 $listing->update(['status' => 'inactive']);
                 return;
@@ -71,18 +74,10 @@ class AuctionService
             }
 
             $winner = User::find($winningBid->user_id);
-
-            if (!$this->walletService->hasSufficientBalance($winner->id, $winningBid->amount)) {
-                $winningBid->update(['status' => 'lost']);
-                Bid::where('listing_id', $listing->id)
-                    ->update(['status' => 'lost']);
-                $listing->update(['status' => 'inactive']);
-                return;
-            }
-
             $fee    = round($winningBid->amount * 0.05, 2);
             $payout = round($winningBid->amount - $fee, 2);
 
+            // Create transaction for winner to pay via card
             $transaction = Transaction::create([
                 'transaction_code' => Transaction::generateCode(),
                 'listing_id'       => $listing->id,
@@ -91,19 +86,21 @@ class AuctionService
                 'amount'           => $winningBid->amount,
                 'platform_fee'     => $fee,
                 'seller_payout'    => $payout,
-                'payment_method'   => 'wallet',
+                'payment_method'   => 'card',
+                'status'           => 'pending',
             ]);
-
-            $this->escrowService->hold($transaction);
 
             $winningBid->update(['status' => 'won']);
 
             Bid::where('listing_id', $listing->id)
                 ->where('id', '!=', $winningBid->id)
                 ->update(['status' => 'lost']);
+
+            $listing->update(['status' => 'reserved']);
         });
     }
 
+    // ── End all expired auctions ──────────────────────────────────────────────
     public function endExpiredAuctions(): int
     {
         $expired = Listing::where('type', 'auction')
@@ -118,6 +115,7 @@ class AuctionService
         return $expired->count();
     }
 
+    // ── Validate bid rules ────────────────────────────────────────────────────
     private function validateBid(Listing $listing, User $bidder, float $amount): void
     {
         if (!$listing->isAuction()) {
@@ -143,8 +141,6 @@ class AuctionService
             );
         }
 
-        if (!$this->walletService->hasSufficientBalance($bidder->id, $amount)) {
-            throw new Exception('Insufficient wallet balance.');
-        }
+        // — winner pays by card after auction ends
     }
 }

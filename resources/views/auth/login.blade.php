@@ -101,7 +101,7 @@
         .fade-in-delay-4 { animation: fadeInUp 0.6s ease 0.4s forwards; opacity: 0; }
     </style>
 </head>
-<body class="min-h-screen bg-gray-950 bg-grid flex items-center justify-center overflow-hidden relative">
+<body class="h-screen min-h-screen bg-gray-950 bg-grid overflow-hidden relative">
 
     {{-- Scan line effect --}}
     <div class="scan-line fixed inset-0 pointer-events-none z-0 h-40 w-full"></div>
@@ -134,7 +134,8 @@
     <div class="fixed bottom-6 right-6 w-6 h-6 border-b-2 border-r-2
                 border-indigo-500/40"></div>
 
-    <div class="relative z-10 w-full max-w-sm mx-4">
+    <div class="absolute inset-0 flex items-center justify-center px-4">
+        <div class="relative z-10 w-full max-w-md">
 
         {{-- Logo --}}
         <div class="text-center mb-8 fade-in">
@@ -279,6 +280,7 @@
         </div>
 
     </div>
+</div>
 
 </body>
 </html>
