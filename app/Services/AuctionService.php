@@ -18,6 +18,8 @@ class AuctionService
     // ── Place a bid ───────────────────────────────────────────────────────────
     public function placeBid(Listing $listing, User $bidder, float $amount): Bid
     {
+
+
         return DB::transaction(function () use ($listing, $bidder, $amount) {
 
             $listing = Listing::lockForUpdate()->find($listing->id);
@@ -38,16 +40,22 @@ class AuctionService
                 'status'     => 'active',
             ]);
 
+            logger('✅ Broadcasting bid event', [
+                'listing_id' => $listing->id,
+                'amount' => $bid->amount
+            ]);
+
             $listing->update([
                 'current_bid'       => $amount,
                 'highest_bidder_id' => $bidder->id,
             ]);
-            
-            // ✅ 🔥 BROADCAST EVENT HERE
+
+            //  🔥 BROADCAST EVENT HERE
             DB::afterCommit(function () use ($listing, $bid) {
-                event(new \App\Events\BidPlaced(
-                    $listing->fresh(),
-                    $bid->load('user')
+
+            event(new \App\Events\BidPlaced(
+                $listing->fresh(),
+                $bid->load('user')
                 ));
             });
 
@@ -86,6 +94,8 @@ class AuctionService
             }
 
             $winner = User::find($winningBid->user_id);
+
+            // Calculate fees
             $fee    = round($winningBid->amount * 0.05, 2);
             $payout = round($winningBid->amount - $fee, 2);
 
@@ -99,15 +109,18 @@ class AuctionService
                 'platform_fee'     => $fee,
                 'seller_payout'    => $payout,
                 'payment_method'   => 'card',
-                'status'           => 'pending',
+                'status'           => 'pending', // winner must pay via bank
             ]);
 
+            // Mark winning bid
             $winningBid->update(['status' => 'won']);
 
+            // Mark all other bids as lost
             Bid::where('listing_id', $listing->id)
                 ->where('id', '!=', $winningBid->id)
                 ->update(['status' => 'lost']);
 
+            // Reserve listing until winner pays
             $listing->update(['status' => 'reserved']);
         });
     }

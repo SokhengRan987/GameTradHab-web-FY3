@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Game;
 use App\Models\Listing;
+use App\Models\Transaction;
 use App\Services\AuctionService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -191,13 +192,26 @@ class AuctionController extends Controller
         }
     }
 
-    public function bid(Request $request, Listing $listing): RedirectResponse
+    public function bid(Request $request, Listing $listing)
     {
+        logger('Bid attempt', [
+            'input' => $request->amount,
+            'min' => $listing->minimumNextBid(),
+        ]);
+
         $request->validate([
             'amount' => ['required', 'numeric', 'min:' . $listing->minimumNextBid()],
         ]);
 
         if ($listing->user_id === Auth::id()) {
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You cannot bid on your own listing.'
+                ], 422);
+            }
+
             return back()->with('error', 'You cannot bid on your own listing.');
         }
 
@@ -208,11 +222,28 @@ class AuctionController extends Controller
                 (float) $request->amount
             );
 
+            // ✅ AJAX RESPONSE
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Bid placed successfully!'
+                ]);
+            }
+
+            // ✅ NORMAL FORM FALLBACK
             return redirect()
                 ->route('auctions.show', $listing)
                 ->with('success', '🎉 Bid placed successfully! You are now the highest bidder.');
 
         } catch (\Exception $e) {
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 422);
+            }
+
             return redirect()
                 ->route('auctions.show', $listing)
                 ->with('error', $e->getMessage());
@@ -223,10 +254,21 @@ class AuctionController extends Controller
     {
         $bids = Auth::user()
             ->bids()
-            ->with(['listing.game', 'listing.highestBidder'])
+            ->with([
+                'listing.game',
+                'listing.highestBidder',
+                'listing.transactions' // preload
+            ])
             ->latest()
             ->paginate(15);
 
-        return view('auctions.my-bids', compact('bids'));
+
+            $wonAuctions = Transaction::with('listing.game')
+                    ->where('buyer_id', Auth::id())
+                    ->where('status', 'pending')
+                    ->whereHas('listing', fn($q) => $q->where('type', 'auction'))
+                    ->get();
+
+        return view('auctions.my-bids', compact('bids', '$wonAuctions'));
     }
 }

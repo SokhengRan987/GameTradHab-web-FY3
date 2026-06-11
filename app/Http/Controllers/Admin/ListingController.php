@@ -11,14 +11,24 @@ class ListingController extends Controller
     // Show all listings with filter by status
     public function index(Request $request)
     {
-        $listings = Listing::with(['game', 'seller'])
-            ->when(
-                $request->status,
-                fn($q) => $q->where('status', $request->status),
-                fn($q) => $q->where('status', 'pending') // default to pending
-            )
-            ->latest()
-            ->paginate(15);
+        // dd($request->all());
+        
+        $query = Listing::with(['game', 'seller']);
+
+        // ✅ PRIORITY: flagged filter
+        if ($request->get('filter') === 'flagged') {
+            $query->where('is_flagged', true)
+                ->where('status', 'active');
+        } else {
+            // ✅ default behavior
+            if ($request->status) {
+                $query->where('status', $request->status);
+            } else {
+                $query->where('status', 'pending');
+            }
+        }
+
+        $listings = $query->latest()->paginate(15);
 
         return view('admin.listings.index', compact('listings'));
     }

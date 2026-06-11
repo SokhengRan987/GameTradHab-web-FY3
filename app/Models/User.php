@@ -100,25 +100,28 @@ class User extends Authenticatable
     }
     // =================================================
 
-    // All listings this user posted as a seller
+    // Listings created by user
     public function listings()
     {
         return $this->hasMany(Listing::class, 'user_id');
     }
-    // All purchases this user made as a buyer
-    public function purchases(){
+
+    // Transactions as buyer
+    public function purchases()
+    {
         return $this->hasMany(Transaction::class, 'buyer_id');
     }
 
-    // All sales this user made as a seller
-    public function sales(){
+    // Transactions as seller
+    public function sales()
+    {
         return $this->hasMany(Transaction::class, 'seller_id');
     }
-
     // All Wallet history logs
     public function walletLogs(){
         return $this->hasMany(WalletLog::class);
     }
+
 
     // ===============================================================
 

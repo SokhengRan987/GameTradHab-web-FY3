@@ -1,10 +1,10 @@
-{{-- @extends('layouts.admin')
+@extends('layouts.admin')
 @section('title', 'Reports')
 
 @section('content')
 
     <div class="flex items-center justify-between mb-5">
-        <h1 class="text-2xl font-bold">📋 Reports</h1>
+        <h1 class="text-2xl font-bold">📋 Flagged</h1>
         <div class="flex gap-2">
             @foreach(['pending' => '⏳ Pending', 'resolved' => '✅ Resolved', 'dismissed' => '❌ Dismissed'] as $status => $label)
             <a href="{{ route('admin.reports.index', ['status' => $status]) }}"
@@ -25,7 +25,6 @@
 
             <div class="flex items-start gap-4">
 
-                {{-- Report info --}}
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-1">
                         <span class="text-xs font-bold uppercase tracking-wider
@@ -59,7 +58,6 @@
                     @endif
                 </div>
 
-                {{-- Actions --}}
                 @if($report->status === 'pending')
                 <div class="flex flex-col gap-2 flex-shrink-0">
                     @if($report->listing)
@@ -95,13 +93,13 @@
 
             </div>
 
-            {{-- Remove confirm form --}}
+            {{-- Remove confirm --}}
             <div x-show="open" class="mt-4 pt-4 border-t border-gray-800">
                 <form method="POST"
                       action="{{ route('admin.reports.remove', $report) }}">
                     @csrf @method('PATCH')
                     <p class="text-xs text-gray-400 mb-2">
-                        This will remove the listing from the site. Add a note:
+                        This will remove the listing. Add a note:
                     </p>
                     <textarea name="admin_note" rows="2"
                               placeholder="Reason for removing listing..."
@@ -136,4 +134,4 @@
         {{ $reports->withQueryString()->links() }}
     </div>
 
-@endsection --}}
+@endsection

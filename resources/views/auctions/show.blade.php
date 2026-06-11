@@ -9,11 +9,67 @@
 <div class="max-w-6xl mx-auto px-4 py-6">
 
     {{-- ✅ DEBUG INFO (temporary) --}}
-    <div class="bg-gray-800 text-white p-4 rounded-lg mb-4 text-xs">
+    {{-- <div class="bg-gray-800 text-white p-4 rounded-lg mb-4 text-xs">
         <p>Now (UTC): {{ now()->utc() }}</p>
         <p>Ends (UTC): {{ $listing->auction_ends_at }}</p>
         <p>Has Ended? {{ $listing->hasEnded() ? 'YES' : 'NO' }}</p>
+    </div> --}}
+    {{-- Winner notification banner --}}
+    @auth
+    @php
+        $myWinningTxn = null;
+        if ($listing->hasEnded()) {
+            $myWinningTxn = \App\Models\Transaction::where('listing_id', $listing->id)
+                ->where('buyer_id', auth()->id())
+                ->whereIn('status', ['pending','paid','escrow','completed'])
+                ->first();
+        }
+    @endphp
+    @if($myWinningTxn && $myWinningTxn->status === 'pending')
+    <div class="max-w-6xl mx-auto px-4 pt-4">
+        <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-4
+                    flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl">🏆</span>
+                <div>
+                    <div class="font-game font-bold text-yellow-400 tracking-wider">
+                        YOU WON THIS AUCTION!
+                    </div>
+                    <div class="text-sm text-gray-400">
+                        Complete your payment to claim this account.
+                    </div>
+                </div>
+            </div>
+            <a href="{{ route('transactions.payment', $myWinningTxn) }}"
+            class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold
+                    px-5 py-2.5 rounded-xl text-sm transition
+                    flex items-center gap-2">
+                🏦 Pay Now — ${{ number_format($myWinningTxn->amount, 2) }}
+            </a>
+        </div>
     </div>
+    @elseif($myWinningTxn && in_array($myWinningTxn->status, ['paid','escrow']))
+    <div class="max-w-6xl mx-auto px-4 pt-4">
+        <div class="bg-green-500/10 border border-green-500/30 rounded-2xl p-4
+                    flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl">✅</span>
+                <div>
+                    <div class="font-bold text-green-400">You won — payment in progress</div>
+                    <div class="text-sm text-gray-400">
+                        Status: {{ ucfirst($myWinningTxn->status) }}
+                    </div>
+                </div>
+            </div>
+            <a href="{{ route('transactions.show', $myWinningTxn) }}"
+            class="bg-green-600 hover:bg-green-500 text-white font-bold
+                    px-5 py-2.5 rounded-xl text-sm transition">
+                View Order →
+            </a>
+        </div>
+    </div>
+    @endif
+    @endauth
 
     {{-- Breadcrumb --}}
     <div class="flex items-center gap-2 text-sm text-gray-500 mb-5">
@@ -70,50 +126,52 @@
                 @endforeach
             </div>
 
-            {{-- Description+
+            {{-- Description+ --}}
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
                 <h3 class="font-bold mb-3">📝 Description</h3>
                 <p class="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
                     {{ $listing->description }}
                 </p>
-            </div> --}}
+            </div>
 
             {{-- Bid History --}}
             <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
                 <div class="px-4 py-3 border-b border-gray-800 font-bold text-sm">
-                    📋 Bid History ({{ $bidHistory->count() }})
+                    📋 Bid History (<span id="bidCount">{{ $bidHistory->count() }}</span>)
                 </div>
-                @forelse($bidHistory as $bid)
-                <div class="flex items-center gap-3 px-4 py-3
-                            border-b border-gray-800/50 last:border-0">
-                    <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center
-                                justify-center text-xs font-bold flex-shrink-0">
-                        {{ strtoupper(substr($bid->user->name, 0, 1)) }}
-                    </div>
-                    <div class="flex-1">
-                        <div class="text-sm font-semibold">
-                            {{ $bid->user->name }}
-                            @if($loop->first && $listing->isLive())
-                            <span class="text-xs bg-yellow-500/15 text-yellow-400
-                                         border border-yellow-500/25 px-2 py-0.5
-                                         rounded-full ml-1">
-                                👑 Highest
-                            </span>
-                            @endif
+                <div id="bidHistoryBox">
+                    @forelse($bidHistory as $bid)
+                    <div class="flex items-center gap-3 px-4 py-3
+                                border-b border-gray-800/50 last:border-0">
+                        <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center
+                                    justify-center text-xs font-bold flex-shrink-0">
+                            {{ strtoupper(substr($bid->user->name, 0, 1)) }}
                         </div>
-                        <div class="text-xs text-gray-500">
-                            {{ $bid->created_at->diffForHumans() }}
+                        <div class="flex-1">
+                            <div class="text-sm font-semibold">
+                                {{ $bid->user->name }}
+                                @if($loop->first && $listing->isLive())
+                                <span class="highest-badge text-xs bg-yellow-500/15 text-yellow-400
+                                            border border-yellow-500/25 px-2 py-0.5
+                                            rounded-full ml-1">
+                                    👑 Highest
+                                </span>
+                                @endif
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                {{ $bid->created_at->diffForHumans() }}
+                            </div>
+                        </div>
+                        <div class="font-bold text-yellow-400">
+                            ${{ number_format($bid->amount, 2) }}
                         </div>
                     </div>
-                    <div class="font-bold text-yellow-400">
-                        ${{ number_format($bid->amount, 2) }}
+                    @empty
+                    <div class="px-4 py-6 text-center text-gray-500 text-sm">
+                        No bids yet — be the first!
                     </div>
-                </div>
-                @empty
-                <div class="px-4 py-6 text-center text-gray-500 text-sm">
-                    No bids yet — be the first!
-                </div>
                 @endforelse
+                </div>
             </div>
 
         </div>
@@ -193,7 +251,7 @@
                         This is your auction listing
                     </div>
                     @elseif($listing->isLive())
-                    <form method="POST" action="{{ route('auctions.bid', $listing) }}">
+                    <form id="bidForm" method="POST" action="{{ route('auctions.bid', $listing) }}">
                         @csrf
                         <div class="mb-3">
                             <label class="block text-sm font-semibold text-gray-300 mb-2">
@@ -202,7 +260,7 @@
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2
                                              text-gray-400 font-bold">$</span>
-                                <input type="number" name="amount"
+                                <input id="bidInput" type="number" name="amount"
                                        step="0.01"
                                        min="{{ $listing->minimumNextBid() }}"
                                        value="{{ old('amount', $listing->minimumNextBid()) }}"
@@ -362,26 +420,166 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     const listingId = {{ $listing->id }};
+    const bidIncrement = {{ $listing->bid_increment }};
+    const currentUserId = {{ auth()->id() ?? 'null' }};
+
+    const bidInput = document.getElementById('bidInput');
+    const bidForm = document.getElementById('bidForm');
 
     console.log('Listening to auction channel:', listingId);
 
+    // ✅ Track user typing (prevent overwrite)
+    if (bidInput) {
+        bidInput.addEventListener('input', () => {
+            bidInput.dataset.userEdited = "true";
+        });
+    }
+
+    // ✅ Pusher connection debug
+    window.Echo.connector.pusher.connection.bind('connected', () => {
+        console.log('✅ Pusher connected!');
+    });
+
+    // ✅ REALTIME LISTENER (ONLY FOR UPDATES)
     Echo.channel('auction.' + listingId)
-        .listen('.BidPlaced', (e) => {
+    .listen('.BidPlaced', (e) => {
 
+        console.log('✅ Live bid received:', e);
 
-            console.log('Live bid received:', e);
+        // ✅ Update price
+        const bidEl = document.getElementById('currentBid');
+        if (bidEl) {
+            bidEl.innerText = '$' + parseFloat(e.bid.amount).toFixed(2);
+        }
 
-            // Update current bid
-            document.getElementById('currentBid').innerText =
-                '$' + parseFloat(e.bid.amount).toFixed(2);
+        // ✅ Update input min/value
+        if (bidInput) {
+            const newMin = parseFloat(e.bid.amount) + bidIncrement;
 
-            // Update bidder name
-            const nameEl = document.getElementById('highestBidder');
-                if (nameEl) {
-                    nameEl.innerText = 'by ' + e.bid.user.name;
+            bidInput.min = newMin.toFixed(2);
+
+            if (
+                !bidInput.dataset.userEdited ||
+                parseFloat(bidInput.value) < newMin
+            ) {
+                bidInput.value = newMin.toFixed(2);
+            }
+        }
+
+        // ✅ Update highest bidder
+        const nameEl = document.getElementById('highestBidder');
+
+        if (nameEl) {
+            if (e.bid.user.id === currentUserId) {
+                nameEl.innerText = '🔥 You are highest bidder!';
+                nameEl.classList.add('text-green-400');
+            } else {
+                nameEl.innerText = 'by ' + e.bid.user.name;
+                nameEl.classList.remove('text-green-400');
+            }
+        }
+
+        // ✅ Update bid history
+        const historyBox = document.getElementById('bidHistoryBox');
+
+        if (historyBox) {
+
+            // remove empty message
+            if (historyBox.innerText.includes('No bids yet')) {
+                historyBox.innerHTML = '';
+            }
+
+            // remove old highest badge
+            historyBox.querySelectorAll('.highest-badge').forEach(el => el.remove());
+
+            const newBidHTML = `
+                <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-800/50">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-xs font-bold">
+                        ${e.bid.user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-semibold">
+                            ${e.bid.user.name}
+                            <span class="highest-badge text-xs bg-yellow-500/15 text-yellow-400 border border-yellow-500/25 px-2 py-0.5 rounded ml-1">
+                                👑 Highest
+                            </span>
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            just now
+                        </div>
+                    </div>
+                    <div class="font-bold text-yellow-400">
+                        $${parseFloat(e.bid.amount).toFixed(2)}
+                    </div>
+                </div>
+            `;
+
+            // insert new bid at top
+            historyBox.insertAdjacentHTML('afterbegin', newBidHTML);
+
+            // limit to 10 items
+            const items = historyBox.querySelectorAll('.flex');
+            if (items.length > 10) {
+                items[items.length - 1].remove();
+            }
+
+            // highlight new item
+            const firstItem = historyBox.firstElementChild;
+            if (firstItem) {
+                firstItem.classList.add('bg-green-500/10');
+
+                setTimeout(() => {
+                    firstItem.classList.remove('bg-green-500/10');
+                }, 1000);
+            }
+
+            // update count
+            const countEl = document.getElementById('bidCount');
+            if (countEl) {
+                countEl.innerText = parseInt(countEl.innerText) + 1;
+            }
+        }
+    });
+
+    // ✅ AJAX BID (NO PAGE RELOAD)
+    if (bidForm) {
+
+        bidForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(bidForm);
+
+            fetch(bidForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => Promise.reject(err));
                 }
-         });
+                return res.json();
+            })
+            .then(data => {
+                console.log('✅ Bid placed via AJAX');
+
+                if (bidInput) {
+                    bidInput.dataset.userEdited = "";
+                }
+            })
+            .catch(err => {
+                console.error('❌ Bid failed:', err);
+
+                alert(err.message || "Bid failed. Please try again.");
+            });
+        });
+    }
+
 });
+``
 
 // Live countdown timer
 function updateCountdown() {

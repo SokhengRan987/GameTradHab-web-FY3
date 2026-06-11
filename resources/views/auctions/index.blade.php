@@ -3,6 +3,43 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 py-8">
+    @php
+        $wonAuctions = \App\Models\Transaction::with('listing.game')
+            ->where('buyer_id', auth()->id())
+            ->where('status', 'pending')
+            ->whereHas('listing', fn($q) => $q->where('type', 'auction'))
+            ->get();
+    @endphp
+
+    @if($wonAuctions->count() > 0)
+    <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-4 mb-5">
+        <div class="flex items-center gap-2 mb-3">
+            <span class="text-xl">🏆</span>
+            <span class="font-game font-bold text-yellow-400 tracking-wider text-sm">
+                YOU WON {{ $wonAuctions->count() }} AUCTION{{ $wonAuctions->count() > 1 ? 'S' : '' }}!
+            </span>
+        </div>
+        <div class="flex flex-col gap-2">
+            @foreach($wonAuctions as $txn)
+            <div class="flex items-center justify-between bg-gray-900 rounded-xl px-4 py-3">
+                <div>
+                    <div class="font-semibold text-sm">{{ $txn->listing->title }}</div>
+                    <div class="text-xs text-gray-400">
+                        Winning bid: <strong class="text-yellow-400">
+                            ${{ number_format($txn->amount, 2) }}
+                        </strong>
+                    </div>
+                </div>
+                <a href="{{ route('transactions.payment', $txn) }}"
+                class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold
+                        text-xs px-4 py-2 rounded-xl transition animate-pulse">
+                    Pay Now →
+                </a>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 
     {{-- Header --}}
     <div class="mb-6">

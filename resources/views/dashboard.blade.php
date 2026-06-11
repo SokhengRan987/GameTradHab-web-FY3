@@ -37,6 +37,34 @@
             </div>
         </div>
     </div>
+    {{-- Won auctions alert --}}
+    @php
+        $wonPending = \App\Models\Transaction::where('buyer_id', auth()->id())
+            ->where('status', 'pending')
+            ->whereHas('listing', fn($q) => $q->where('type', 'auction'))
+            ->count();
+    @endphp
+    @if($wonPending > 0)
+    <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-4 mb-5
+                flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🏆</span>
+            <div>
+                <div class="font-bold text-yellow-400">
+                    You won {{ $wonPending }} auction{{ $wonPending > 1 ? 's' : '' }}!
+                </div>
+                <div class="text-xs text-gray-400">
+                    Complete payment to claim your account(s).
+                </div>
+            </div>
+        </div>
+        <a href="{{ route('transactions.index') }}"
+        class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold
+                text-sm px-4 py-2 rounded-xl transition">
+            Pay Now →
+        </a>
+    </div>
+    @endif
 
     {{-- Profile incomplete warning --}}
     @if(!auth()->user()->profile_completed)

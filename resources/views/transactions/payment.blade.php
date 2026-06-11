@@ -424,18 +424,6 @@ function copyText(text, btn) {
     });
 }
 
-// function copyText(text, btn) {
-//     navigator.clipboard.writeText(text).then(() => {
-//         const orig = btn.innerHTML;
-//         btn.innerHTML = '✅ Copied!';
-//         btn.classList.add('bg-green-500/20', 'border-green-500/30', 'text-green-400');
-//         setTimeout(() => {
-//             btn.innerHTML = orig;
-//             btn.classList.remove('bg-green-500/20', 'border-green-500/30', 'text-green-400');
-//         }, 2000);
-//     });
-// }
-
 
 // Enable submit only when checkbox checked
 function toggleSubmit() {

@@ -59,17 +59,66 @@
                             —
                         @endif
                     </td>
+
                     <td class="px-4 py-3">
-                        @if($isWinning)
-                        <span class="text-xs px-2 py-1 rounded-full border font-semibold
-                                     bg-green-500/10 text-green-400 border-green-500/20">
-                            👑 Winning
-                        </span>
+                        @php
+                            $winnerTxn = $bid->listing->transactions
+                                ->where('buyer_id', auth()->id())
+                                ->first();
+                        @endphp
+
+                        @if($bid->status === 'won')
+
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs px-2 py-1 rounded-full border font-semibold
+                                            bg-yellow-500/10 text-yellow-400 border-yellow-500/20">
+                                    🏆 You Won!
+                                </span>
+
+                                @if($winnerTxn && $winnerTxn->status === 'pending')
+                                    <a href="{{ route('transactions.payment', $winnerTxn) }}"
+                                    class="text-xs bg-green-600 hover:bg-green-500 text-white
+                                            px-3 py-1.5 rounded-lg font-bold animate-pulse">
+                                        Pay Now →
+                                    </a>
+
+                                @elseif($winnerTxn)
+                                    <a href="{{ route('transactions.show', $winnerTxn) }}"
+                                    class="text-xs bg-gray-700 hover:bg-gray-600 text-white
+                                            px-3 py-1.5 rounded-lg">
+                                        View Order
+                                    </a>
+                                @endif
+                            </div>
+
+                        @elseif($bid->status === 'lost')
+
+                            <span class="text-xs px-2 py-1 rounded-full border font-semibold
+                                        bg-gray-500/10 text-gray-500 border-gray-500/20">
+                                Lost
+                            </span>
+
+                        @elseif($isWinning)
+
+                            <span class="text-xs px-2 py-1 rounded-full border font-semibold
+                                        bg-green-500/10 text-green-400 border-green-500/20">
+                                👑 Winning
+                            </span>
+
+                        @elseif($bid->status === 'outbid')
+
+                            <span class="text-xs px-2 py-1 rounded-full border font-semibold
+                                        bg-red-500/10 text-red-400 border-red-500/20">
+                                Outbid
+                            </span>
+
                         @else
-                        <span class="text-xs px-2 py-1 rounded-full border font-semibold
-                                     {{ $colors[$bid->status] ?? '' }}">
-                            {{ ucfirst($bid->status) }}
-                        </span>
+
+                            <span class="text-xs px-2 py-1 rounded-full border font-semibold
+                                        bg-gray-500/10 text-gray-400 border-gray-500/20">
+                                {{ ucfirst($bid->status) }}
+                            </span>
+
                         @endif
                     </td>
                     <td class="px-4 py-3">

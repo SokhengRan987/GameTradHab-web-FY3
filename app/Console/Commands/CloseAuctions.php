@@ -13,57 +13,71 @@ class CloseAuctions extends Command
      *
      * @var string
      */
-    protected $signature = 'app:close-auctions';
+    protected $signature = 'auctions:close';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Close ended auctions and create transactions';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
+        $endedAuctions = Listing::where('type', 'auction')
+            ->where('status', 'active')
+            ->where('auction_ends_at', '<=', now())
+            ->get();
 
-    $endedAuctions = Listing::where('type', 'auction')
-        ->where('status', 'active')
-        ->where('auction_ends_at', '<=', now())
-        ->get();
+        foreach ($endedAuctions as $listing) {
 
-    foreach ($endedAuctions as $listing) {
+            DB::transaction(function () use ($listing) {
 
-        DB::transaction(function () use ($listing) {
+                // ✅ find highest bid
+                $winningBid = $listing->bids()
+                    ->orderByDesc('amount')
+                    ->first();
 
-            // ✅ Mark auction as ended
-            $listing->update([
-                'status' => 'inactive',
-            ]);
-
-            // ✅ Get winner
-            $winner = $listing->highestBidder;
-
-            if ($winner) {
-                // ✅ Create payment record
-                \App\Models\Transaction::create([
-                    'buyer_id'   => $winner->id,
-                    'seller_id'  => $listing->user_id,
-                    'listing_id' => $listing->id,
-                    'amount'     => $listing->current_bid,
-                    'status'     => 'pending', // waiting for payment
+                // ✅ close auction
+                $listing->update([
+                    'status' => 'inactive',
                 ]);
 
-                $this->info("Auction #{$listing->id} ended. Winner: {$winner->name} (Payment created)");
+                if ($winningBid) {
 
-            } else {
-                $this->info("Auction #{$listing->id} ended with no bids.");
-            }
-        });
+                    $winner = $winningBid->user;
 
-    }
+                    // ✅ mark all bids lost
+                    $listing->bids()->update(['status' => 'lost']);
 
-    return Command::SUCCESS;
+                    // ✅ mark winner
+                    $winningBid->update(['status' => 'won']);
+
+                    // ✅ create transaction
+                    \App\Models\Transaction::create([
+                        'transaction_code' => \App\Models\Transaction::generateCode(),
+                        'buyer_id'         => $winner->id,
+                        'seller_id'        => $listing->user_id,
+                        'listing_id'       => $listing->id,
+                        'amount'           => $winningBid->amount,
+                        'platform_fee'     => round($winningBid->amount * 0.05, 2),
+                        'seller_payout'    => round($winningBid->amount * 0.95, 2),
+                        'payment_method'   => 'card',
+                        'status'           => 'pending',
+                    ]);
+
+                    $this->info("✅ Auction #{$listing->id} → Winner: {$winner->name}");
+
+                } else {
+                    $this->info("⚠️ Auction #{$listing->id} ended with no bids.");
+                }
+
+            });
+        }
+
+        return Command::SUCCESS;
     }
 }

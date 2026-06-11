@@ -12,7 +12,11 @@ window.Echo = new Echo({
     key: import.meta.env.VITE_PUSHER_APP_KEY,
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
     forceTLS: true,
-})
+});
+
+window.Echo.connector.pusher.connection.bind('connected', () => {
+    console.log('✅ Pusher connected');
+});
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 

@@ -142,7 +142,7 @@ class TransactionController extends Controller
         $last4 = substr(str_replace(' ', '', $request->card_number), -4);
 
         $transaction->update([
-            'status'         => 'escrow',
+            'status'         => 'paid',
             'buyer_paid_at'  => now(),
             'payment_method' => 'card',
             'payment_note'   => 'Paid by card ending ' . $last4,

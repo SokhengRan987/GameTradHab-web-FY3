@@ -1,19 +1,20 @@
 <?php
 
-use App\Http\Controllers\ListingController;
-use App\Http\Controllers\TransactionController;
-use App\Http\Controllers\WalletController;
-use App\Http\Controllers\AuctionController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\Admin\AuctionController as AdminAuctionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ListingController as AdminListingController;
-use App\Http\Controllers\Admin\TransactionController as AdminTransactionController;
-use App\Http\Controllers\Admin\AuctionController as AdminAuctionController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\Admin\TransactionController as AdminTransactionController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuctionController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ListingController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\WalletController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 // ── PUBLIC ROUTES ─────────────────────────────────────────
 Route::get('/', [ListingController::class, 'index'])->name('home');
@@ -143,8 +144,15 @@ Route::middleware(['auth', 'admin'])
         ->name('listings.reject');
     Route::patch('/listings/{listing}/remove', [AdminListingController::class, 'remove'])
         ->name('listings.remove');
+
+    Route::patch('/listings/{listing}/flag', [AdminListingController::class, 'flag'])
+        ->name('listings.flag');
+
     Route::patch('/listings/{listing}/unflag', [AdminListingController::class, 'unflag'])
         ->name('listings.unflag');
+
+    // Route::patch('admin/listings/{listing}/unflag', [Admin\ListingController::class, 'unflag'])
+    //     ->name('admin.listings.unflag');
 
     // Auctions
     Route::get('/auctions', [AdminAuctionController::class, 'index'])
