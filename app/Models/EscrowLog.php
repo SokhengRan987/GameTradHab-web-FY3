@@ -6,7 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class EscrowLog extends Model
 {
-    //
+    const STATUS_HELD     = 'held';
+    const STATUS_RELEASED = 'released';
+    const STATUS_REFUNDED = 'refunded';
+
     protected $fillable = [
         'transaction_id',
         'held_amount',
@@ -25,5 +28,20 @@ class EscrowLog extends Model
     // This escrow log belongs to a transaction
     public function transaction(){
         return $this->belongsTo(Transaction::class);
+    }
+
+    public function isHeld(): bool
+    {
+        return $this->status === self::STATUS_HELD;
+    }
+
+    public function isReleased(): bool
+    {
+        return $this->status === self::STATUS_RELEASED;
+    }
+
+    public function isRefunded(): bool
+    {
+        return $this->status === self::STATUS_REFUNDED;
     }
 }

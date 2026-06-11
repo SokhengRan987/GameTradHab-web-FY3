@@ -8,7 +8,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-bold">
-                👋 Welcome back, {{ auth()->user()->name }}!
+                Welcome back, {{ auth()->user()->name }}!
             </h1>
             <p class="text-gray-400 text-sm mt-1">
                 {{ now()->format('l, F j Y') }}
@@ -27,12 +27,12 @@
                 <a href="{{ route('listings.create') }}"
                    class="block px-4 py-2 text-sm text-gray-300
                           hover:bg-gray-700 hover:text-white">
-                    🛒 Fixed Price
+                    Fixed Price
                 </a>
                 <a href="{{ route('auctions.create') }}"
                    class="block px-4 py-2 text-sm text-gray-300
                           hover:bg-gray-700 hover:text-white">
-                    🏆 Auction
+                    Auction
                 </a>
             </div>
         </div>
@@ -42,7 +42,6 @@
     @if(!auth()->user()->profile_completed)
     <div class="bg-yellow-500/10 border border-yellow-500/25 rounded-xl p-4 mb-5
                 flex items-center gap-3">
-        <span class="text-2xl">⚠️</span>
         <div class="flex-1">
             <div class="font-semibold text-yellow-400 text-sm">
                 Complete your profile
@@ -54,7 +53,7 @@
         <a href="{{ route('profile.edit') }}"
            class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400
                   px-3 py-1.5 rounded-lg text-xs font-semibold transition">
-            Complete Now →
+            Complete Now
         </a>
     </div>
     @endif
@@ -72,7 +71,7 @@
     @endphp
 
     <div class="grid grid-cols-4 gap-4 mb-6">
-        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
+        {{-- <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
             <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">
                 Wallet Balance
             </div>
@@ -81,9 +80,9 @@
             </div>
             <a href="{{ route('wallet.index') }}"
                class="text-xs text-gray-500 hover:text-indigo-400 transition">
-                Top up →
+                Top up
             </a>
-        </div>
+        </div> --}}
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
             <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">
                 Total Earned
@@ -112,7 +111,7 @@
             </div>
             @if(auth()->user()->rating_avg > 0)
             <div class="text-2xl font-bold text-yellow-400">
-                ⭐ {{ number_format(auth()->user()->rating_avg, 1) }}
+                {{ number_format(auth()->user()->rating_avg, 1) }}
             </div>
             <div class="text-xs text-gray-500">
                 from {{ auth()->user()->reviews()->count() }} reviews
@@ -126,28 +125,25 @@
 
     {{-- Listing status summary --}}
     <div class="grid grid-cols-3 gap-3 mb-6">
-        <div class="bg-gray-900 border border-gray-800 rounded-xl p-3
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4
                     flex items-center gap-3">
-            <div class="w-8 h-8 bg-green-500/15 rounded-lg flex items-center
-                        justify-center text-sm">🟢</div>
+            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
             <div>
                 <div class="text-lg font-bold text-green-400">{{ $activeListings }}</div>
                 <div class="text-xs text-gray-500">Active Listings</div>
             </div>
         </div>
-        <div class="bg-gray-900 border border-gray-800 rounded-xl p-3
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4
                     flex items-center gap-3">
-            <div class="w-8 h-8 bg-yellow-500/15 rounded-lg flex items-center
-                        justify-center text-sm">⏳</div>
+            <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
             <div>
                 <div class="text-lg font-bold text-yellow-400">{{ $pendingListings }}</div>
                 <div class="text-xs text-gray-500">Under Review</div>
             </div>
         </div>
-        <div class="bg-gray-900 border border-gray-800 rounded-xl p-3
+        <div class="bg-gray-900 border border-gray-800 rounded-xl p-4
                     flex items-center gap-3">
-            <div class="w-8 h-8 bg-indigo-500/15 rounded-lg flex items-center
-                        justify-center text-sm">✅</div>
+            <div class="w-3 h-3 bg-indigo-500 rounded-full"></div>
             <div>
                 <div class="text-lg font-bold text-indigo-400">{{ $soldListings }}</div>
                 <div class="text-xs text-gray-500">Sold</div>
@@ -179,7 +175,7 @@
                             <span>·</span>
                             <span>{{ ucfirst($listing->type) }}</span>
                             <span>·</span>
-                            <span>👁 {{ $listing->views_count }}</span>
+                            <span>Views: {{ $listing->views_count }}</span>
                         </div>
                     </div>
                     <div class="text-green-400 font-bold text-sm">
@@ -199,8 +195,8 @@
                         {{ ucfirst($listing->status) }}
                     </span>
                     @if($listing->is_flagged)
-                    <span class="text-xs text-yellow-400" title="{{ $listing->flag_reason }}">
-                        🚩
+                    <span class="text-xs text-yellow-400" title="{{ $listing->flag_reason ?? '' }}">
+                        Flagged
                     </span>
                     @endif
                     <a href="{{ route('listings.edit', $listing) }}"
@@ -213,7 +209,7 @@
                     No listings yet.
                     <a href="{{ route('listings.create') }}"
                        class="text-indigo-400 hover:underline ml-1">
-                        Create your first listing →
+                        Create your first listing
                     </a>
                 </div>
                 @endforelse
@@ -266,7 +262,7 @@
                     No orders yet.
                     <a href="{{ route('listings.index') }}"
                        class="text-indigo-400 hover:underline ml-1">
-                        Browse listings →
+                        Browse listings
                     </a>
                 </div>
                 @endforelse
@@ -276,11 +272,11 @@
             @if($openDisputes > 0)
             <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-3 mt-3">
                 <div class="text-sm font-bold text-red-400">
-                    ⚠️ {{ $openDisputes }} open dispute{{ $openDisputes > 1 ? 's' : '' }}
+                    {{ $openDisputes }} open dispute{{ $openDisputes > 1 ? 's' : '' }}
                 </div>
                 <a href="{{ route('transactions.index') }}"
                    class="text-xs text-gray-400 hover:text-white transition">
-                    View transactions →
+                    View transactions
                 </a>
             </div>
             @endif

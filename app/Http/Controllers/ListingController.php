@@ -6,12 +6,20 @@ use App\Models\Game;
 use App\Models\Listing;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ListingController extends Controller
 {
     use AuthorizesRequests;
+
+    public function __construct()
+    {
+        $this->middleware('auth')->only([
+            'create', 'store', 'edit', 'update', 'destroy'
+        ]);
+    }
     // Browse all active listings with filters
     public function index(Request $request)
     {
@@ -117,6 +125,8 @@ class ListingController extends Controller
     // Save new listing
     public function store(Request $request)
     {
+        // dd($request->file('images'));
+
         $validated = $request->validate([
             'game_id'           => 'required|exists:games,id',
             'description' => 'required|string',
@@ -132,25 +142,25 @@ class ListingController extends Controller
             'stock_source'      => 'nullable|in:self_farmed,resell,gifted,other',
             'stock_source_note' => 'nullable|string|max:500',
             'images'            => 'required|array|min:1',
-            'images.*'          => 'image|mimes:jpg,jpeg,png,webp|max:3072',
+            'images.*'          => 'image|mimes:jpg,jpeg,png,webp|max:10240',
 
             'contact_telegram'  => [
-    'nullable',
-    'string',
-    function ($attribute, $value, $fail) {
-        // Accept full URL or just username
-        if (preg_match('/(?:https?:\/\/)?(?:t\.me|telegram\.me)\/([^\s\/?#]+)/i', $value, $matches)) {
-            $username = $matches[1];
-        } else {
-            $username = ltrim($value, '@');
-        }
+                'nullable',
+                'string',
+                function ($attribute, $value, $fail) {
+                    // Accept full URL or just username
+                    if (preg_match('/(?:https?:\/\/)?(?:t\.me|telegram\.me)\/([^\s\/?#]+)/i', $value, $matches)) {
+                        $username = $matches[1];
+                    } else {
+                        $username = ltrim($value, '@');
+                    }
 
-        // Telegram username rules: 5-32 chars, letters/numbers/underscore only
-        if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9_]{3,30}[a-zA-Z0-9]$/', $username)) {
-            $fail('Telegram username must be 5–32 characters, letters, numbers and underscores only. Example: @myusername');
-        }
-    },
-],
+                    // Telegram username rules: 5-32 chars, letters/numbers/underscore only
+                    if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9_]{3,30}[a-zA-Z0-9]$/', $username)) {
+                        $fail('Telegram username must be 5–32 characters, letters, numbers and underscores only. Example: @myusername');
+                    }
+                },
+            ],
         ]);
 
         // Parse Telegram link to extract username
@@ -218,29 +228,29 @@ class ListingController extends Controller
 
         foreach ($request->file('images', []) as $index => $image) {
 
-    if (config('filesystems.disks.cloudinary.url')) {
+            if (config('filesystems.disks.cloudinary.url')) {
 
-        $result = cloudinary()->uploadApi()->upload(
-            $image->getRealPath(),
-            [
-                'folder' => 'gametradehub/listings/' . $listing->id,
-                'resource_type' => 'image',
-            ]
-        );
+                $result = cloudinary()->uploadApi()->upload(
+                    $image->getRealPath(),
+                    [
+                        'folder' => 'gametradehub/listings/' . $listing->id,
+                        'resource_type' => 'image',
+                    ]
+                );
 
-        $path = $result['secure_url'];
+                $path = $result['secure_url'];
 
-    } else {
-        // fallback to local
-        $path = $image->store('listings/' . $listing->id, 'public');
-    }
+            } else {
+                // fallback to local
+                $path = $image->store('listings/' . $listing->id, 'public');
+            }
 
-    $listing->images()->create([
-        'image_path' => $path,
-        'is_proof'   => true,
-        'sort_order' => $index,
-    ]);
-}
+            $listing->images()->create([
+                'image_path' => $path,
+                'is_proof'   => true,
+                'sort_order' => $index,
+            ]);
+        }
 
         $message = $isFlagged
             ? 'Listing is live! Note: it has been flagged for admin review.'
@@ -250,9 +260,6 @@ class ListingController extends Controller
             ->route('dashboard')
             ->with('success', $message);
     }
-
-
-
 
     // Show edit form
     public function edit(Listing $listing)
@@ -336,7 +343,17 @@ class ListingController extends Controller
             }
         }
 
-        $listing->delete();
+        // $listing->delete();
+
+        DB::transaction(function () use ($listing) {
+
+            foreach ($listing->images as $image) {
+                // delete files
+            }
+
+            $listing->delete();
+
+        });
 
         return redirect()
             ->route('dashboard')

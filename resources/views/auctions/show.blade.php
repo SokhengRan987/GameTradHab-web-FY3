@@ -8,6 +8,13 @@
 @section('content')
 <div class="max-w-6xl mx-auto px-4 py-6">
 
+    {{-- ✅ DEBUG INFO (temporary) --}}
+    <div class="bg-gray-800 text-white p-4 rounded-lg mb-4 text-xs">
+        <p>Now (UTC): {{ now()->utc() }}</p>
+        <p>Ends (UTC): {{ $listing->auction_ends_at }}</p>
+        <p>Has Ended? {{ $listing->hasEnded() ? 'YES' : 'NO' }}</p>
+    </div>
+
     {{-- Breadcrumb --}}
     <div class="flex items-center gap-2 text-sm text-gray-500 mb-5">
         <a href="{{ route('auctions.index') }}" class="hover:text-white">Auctions</a>
@@ -52,7 +59,7 @@
                     'Rank'        => $listing->rank ?? '—',
                     'Level'       => $listing->level ?? '—',
                     'Platform'    => $listing->platform,
-                    
+
                 ] as $label => $value)
                 <div class="bg-gray-900 border border-gray-800 rounded-xl p-3">
                     <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">
@@ -120,32 +127,41 @@
                             p-3 mb-4 text-center"
                      id="timerBox">
                     <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">
-                        ⏰ Time Remaining
+                        Time Remaining
                     </div>
                     <div class="text-2xl font-bold text-yellow-400 font-mono"
                          id="countdown"
-                         data-ends="{{ $listing->auction_ends_at->toISOString() }}">
+                         data-ends="{{ $listing->auction_ends_at->toIso8601String() }}"
+                    >
                         {{ $listing->timeRemaining() }}
                     </div>
                 </div>
 
-                {{-- Current Bid --}}
                 <div class="mb-4">
-                    @if($listing->current_bid)
-                    <div class="text-xs text-gray-400 mb-1">Current Highest Bid</div>
-                    <div class="text-3xl font-bold text-yellow-400 font-mono">
-                        ${{ number_format($listing->current_bid, 2) }}
+                    {{-- Current Bid --}}
+                    <div  class="text-xs text-gray-400 mb-1">Current Bid</div>
+                    <div id="currentBid" class="text-3xl font-bold text-yellow-400 font-mono">
+                        ${{ number_format($listing->current_bid ?? $listing->starting_price, 2) }}
                     </div>
-                    <div class="text-xs text-gray-400 mt-1">
-                        by {{ $listing->highestBidder->name ?? '—' }}
+
+                    @if($listing->highestBidder)
+                    <div id="highestBidder" class="text-xs text-gray-400 mt-1">
+                        by {{ $listing->highestBidder->name }}
                     </div>
                     @else
-                    <div class="text-xs text-gray-400 mb-1">Starting Price</div>
-                    <div class="text-3xl font-bold text-green-400 font-mono">
-                        ${{ number_format($listing->starting_price, 2) }}
+                    <div id="highestBidder" class="text-xs text-gray-400 mt-1">
+                        No bids yet
                     </div>
-                    <div class="text-xs text-gray-400 mt-1">No bids yet</div>
                     @endif
+
+                    {{-- Starting Price ALWAYS visible --}}
+                    <div class="mt-3 text-xs text-gray-500">
+                        Starting price:
+                        <strong class="text-gray-300">
+                            ${{ number_format($listing->starting_price, 2) }}
+                        </strong>
+                    </div>
+
                 </div>
 
                 {{-- Min next bid info --}}
@@ -180,8 +196,8 @@
                     <form method="POST" action="{{ route('auctions.bid', $listing) }}">
                         @csrf
                         <div class="mb-3">
-                            <label class="block text-xs font-semibold text-gray-400 mb-1.5">
-                                Your Bid (USD)
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">
+                                Enter your bid
                             </label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2
@@ -342,6 +358,31 @@
 
 @push('scripts')
 <script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const listingId = {{ $listing->id }};
+
+    console.log('Listening to auction channel:', listingId);
+
+    Echo.channel('auction.' + listingId)
+        .listen('.BidPlaced', (e) => {
+
+
+            console.log('Live bid received:', e);
+
+            // Update current bid
+            document.getElementById('currentBid').innerText =
+                '$' + parseFloat(e.bid.amount).toFixed(2);
+
+            // Update bidder name
+            const nameEl = document.getElementById('highestBidder');
+                if (nameEl) {
+                    nameEl.innerText = 'by ' + e.bid.user.name;
+                }
+         });
+});
+
 // Live countdown timer
 function updateCountdown() {
     const el = document.getElementById('countdown');

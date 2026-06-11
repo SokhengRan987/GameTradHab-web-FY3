@@ -11,7 +11,9 @@ class Listing extends Model
         'user_id',
         'game_id',
         'title',
+        'description',
         'price',
+        // =============================
         // Adding this for scope auction
         // =============================
         'starting_price',
@@ -20,6 +22,7 @@ class Listing extends Model
         'current_bid',
         'highest_bidder_id',
         // =============================
+        'server',
         'rank',
         'level',
         'platform',
@@ -44,6 +47,7 @@ class Listing extends Model
         'contact_whatsapp',
         'contact_discord',
         'share_count',
+        'public_id',
     ];
 
     protected $casts = [
@@ -61,6 +65,7 @@ class Listing extends Model
         'current_bid' => 'decimal:2',
         'auction_ends_at' => 'datetime',
         // =============================
+
     ];
 
 
@@ -90,38 +95,60 @@ class Listing extends Model
     }
 
     // Has the auction ended?
+    // public function hasEnded(): bool {
+    //     return $this->auction_ends_at
+    //         && now()->utc()->gte($this->auction_ends_at);
+    // }
+
     public function hasEnded(): bool {
-        return $this->auction_ends_at && $this->auction_ends_at->isPast();
+        if (!$this->auction_ends_at) {
+            return true;
+        }
+
+        // return now()->utc()->gte($this->auction_ends_at);
+        return now('UTC')->gte($this->auction_ends_at->copy()->timezone('UTC'));
     }
+
 
     // Is the auction still running?
     public function isLive(): bool {
-        return $this->isAuction()
+    return $this->isAuction()
             && $this->status === 'active'
-            && !$this->hasEnded();
+            && now('UTC')->lt($this->auction_ends_at->copy()->timezone('UTC'));
     }
 
     // What is the minimum next bid?
     public function minimumNextBid(): float {
         if ($this->current_bid){
-            return (float) $this->current_id + (float) $this->bid_increment;
+            return (float) $this->current_bid + (float) $this->bid_increment;
         }
         return (float) $this->starting_price;
     }
 
     // How much time is left in the auction?
     public function timeRemaining(): string {
-        if(!$this->auction_ends_at || $this->hasEnded()){
+        if (!$this->auction_ends_at) {
             return 'Ended';
         }
-        return $this->auction_ends_at->diffForHumans();
+
+        $now = now('UTC');
+        $end = $this->auction_ends_at->copy()->timezone('UTC');
+
+        if ($now->gte($end)) {
+            return 'Ended';
+        }
+
+        return $now->diffForHumans($end, [
+            'parts' => 2,
+            'short' => true,
+        ]);
     }
 
     // Scope for active auctions only
     public function scopeAuction($query) {
         return $query->where('type', 'auction')
                      ->where('status', 'active')
-                     ->where('aution_ends_at', '>', now());
+                     ->where('auction_ends_at', '>', now());
     }
     // ===========================================
 
@@ -139,12 +166,16 @@ class Listing extends Model
     // This listing has many images
     public function images()
     {
-        return $this->hasMany(ListingImage::class)->orderBy('sort_order');
+        return $this->hasMany(ListingImage::class)->orderBy('sort_order')->orderBy('id');;
     }
     // Get only the first image (for card thumbnails)
     public function firstImage()
     {
-        return $this->hasOne(ListingImage::class)->orderBy('sort_order');
+        return $this->hasOne(ListingImage::class)->orderBy('sort_order')->orderBy('id');;
+    }
+    public function getFirstImageAttribute()
+    {
+        return $this->images->first();
     }
     // This listing has many transactions
     public function transactions()

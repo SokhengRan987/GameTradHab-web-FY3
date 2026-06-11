@@ -6,7 +6,7 @@
 
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-2xl font-bold">⚙️ My Profile</h1>
+            <h1 class="text-2xl font-bold">My Profile</h1>
             <p class="text-gray-400 text-sm mt-1">
                 Complete your profile to build trust with buyers
             </p>
@@ -14,12 +14,12 @@
         @if(auth()->user()->profile_completed)
         <span class="bg-green-500/10 border border-green-500/25 text-green-400
                      px-3 py-1.5 rounded-full text-xs font-bold">
-            ✅ Profile Complete
+            Profile Complete
         </span>
         @else
         <span class="bg-yellow-500/10 border border-yellow-500/25 text-yellow-400
                      px-3 py-1.5 rounded-full text-xs font-bold">
-            ⚠️ Profile Incomplete
+            Profile Incomplete
         </span>
         @endif
     </div>
@@ -28,10 +28,10 @@
         @csrf
         @method('PATCH')
 
-        {{-- BLOCK 1: Personal Information --}}
+        {{-- Personal Information --}}
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-4">
             <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">
-                👤 Personal Information
+                Personal Information
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-4">
@@ -117,10 +117,10 @@
             </div>
         </div>
 
-        {{-- BLOCK 2: Contact Information --}}
+        {{-- Contact Information --}}
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-4">
             <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
-                📞 Contact Information
+                Contact Information
             </div>
             <p class="text-xs text-gray-500 mb-4">
                 Phone number is only shown to buyers after a completed purchase.
@@ -144,82 +144,66 @@
             </div>
         </div>
 
-        {{-- BLOCK 3: Instant Messenger --}}
+        {{-- Instant Messenger --}}
         <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-4">
             <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
-                💬 Instant Messenger
+                Instant Messenger
             </div>
             <p class="text-xs text-gray-500 mb-4">
                 Add at least one so buyers can contact you directly.
             </p>
 
             <div class="flex flex-col gap-3">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-sky-500/15 rounded-xl flex items-center
-                                justify-center text-lg flex-shrink-0">✈️</div>
-                    <div class="flex-1">
-                        <label class="block text-xs font-semibold text-gray-400 mb-1">
-                            Telegram
-                        </label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2
-                                         text-gray-500 text-sm">t.me/</span>
-                            <input type="text" name="telegram"
-                                   value="{{ old('telegram', $user->telegram) }}"
-                                   placeholder="yourusername"
-                                   class="w-full bg-gray-800 border border-gray-700 rounded-xl
-                                          pl-14 pr-3 py-2 text-sm text-white
-                                          focus:outline-none focus:border-sky-500">
-                        </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">
+                        Telegram
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2
+                                     text-gray-500 text-sm">t.me/</span>
+                        <input type="text" name="telegram"
+                               value="{{ old('telegram', $user->telegram) }}"
+                               placeholder="yourusername"
+                               class="w-full bg-gray-800 border border-gray-700 rounded-xl
+                                      pl-14 pr-3 py-2 text-sm text-white
+                                      focus:outline-none focus:border-sky-500">
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-green-500/15 rounded-xl flex items-center
-                                justify-center text-lg flex-shrink-0">📱</div>
-                    <div class="flex-1">
-                        <label class="block text-xs font-semibold text-gray-400 mb-1">
-                            WhatsApp
-                        </label>
-                        <input type="text" name="whatsapp"
-                               value="{{ old('whatsapp', $user->whatsapp) }}"
-                               placeholder="60123456789"
-                               class="w-full bg-gray-800 border border-gray-700 rounded-xl
-                                      px-3 py-2 text-sm text-white
-                                      focus:outline-none focus:border-green-500">
-                    </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">
+                        WhatsApp
+                    </label>
+                    <input type="text" name="whatsapp"
+                           value="{{ old('whatsapp', $user->whatsapp) }}"
+                           placeholder="60123456789"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-xl
+                                  px-3 py-2 text-sm text-white
+                                  focus:outline-none focus:border-green-500">
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-indigo-500/15 rounded-xl flex items-center
-                                justify-center text-lg flex-shrink-0">🎮</div>
-                    <div class="flex-1">
-                        <label class="block text-xs font-semibold text-gray-400 mb-1">
-                            Discord
-                        </label>
-                        <input type="text" name="discord"
-                               value="{{ old('discord', $user->discord) }}"
-                               placeholder="username or username#0000"
-                               class="w-full bg-gray-800 border border-gray-700 rounded-xl
-                                      px-3 py-2 text-sm text-white
-                                      focus:outline-none focus:border-indigo-500">
-                    </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">
+                        Discord
+                    </label>
+                    <input type="text" name="discord"
+                           value="{{ old('discord', $user->discord) }}"
+                           placeholder="username or username#0000"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-xl
+                                  px-3 py-2 text-sm text-white
+                                  focus:outline-none focus:border-indigo-500">
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-green-600/15 rounded-xl flex items-center
-                                justify-center text-lg flex-shrink-0">💚</div>
-                    <div class="flex-1">
-                        <label class="block text-xs font-semibold text-gray-400 mb-1">
-                            Line ID
-                        </label>
-                        <input type="text" name="line_id"
-                               value="{{ old('line_id', $user->line_id) }}"
-                               placeholder="your_line_id"
-                               class="w-full bg-gray-800 border border-gray-700 rounded-xl
-                                      px-3 py-2 text-sm text-white
-                                      focus:outline-none focus:border-green-600">
-                    </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">
+                        Line ID
+                    </label>
+                    <input type="text" name="line_id"
+                           value="{{ old('line_id', $user->line_id) }}"
+                           placeholder="your_line_id"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-xl
+                                  px-3 py-2 text-sm text-white
+                                  focus:outline-none focus:border-green-600">
                 </div>
             </div>
         </div>
@@ -229,7 +213,7 @@
             <button type="submit"
                     class="bg-indigo-600 hover:bg-indigo-500 text-white
                            px-6 py-2.5 rounded-xl font-semibold text-sm transition">
-                Save Profile →
+                Save Profile
             </button>
         </div>
 
@@ -238,7 +222,7 @@
     {{-- Change Password --}}
     <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 mb-4">
         <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">
-            🔒 Change Password
+            Change Password
         </div>
         <form method="POST" action="{{ route('profile.password') }}">
             @csrf
@@ -294,7 +278,7 @@
     <div class="bg-red-500/5 border border-red-500/20 rounded-xl p-5"
          x-data="{ show: false }">
         <div class="text-xs font-bold text-red-400 uppercase tracking-wider mb-3">
-            ⚠️ Danger Zone
+            Danger Zone
         </div>
         <div class="flex items-center justify-between">
             <div>

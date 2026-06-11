@@ -19,11 +19,11 @@
                 @endif
             </div>
             <div class="flex items-center gap-4 text-sm text-gray-400">
-                <span>🛒 {{ $user->total_sales }} sales</span>
+                <span>Cart {{ $user->total_sales }} sales</span>
                 @if($user->rating_avg > 0)
-                <span>⭐ {{ number_format($user->rating_avg, 1) }} / 5.0</span>
+                <span>Rating {{ number_format($user->rating_avg, 1) }} / 5.0</span>
                 @endif
-                <span>📅 Joined {{ $user->created_at->format('M Y') }}</span>
+                <span>Joined {{ $user->created_at->format('M Y') }}</span>
             </div>
         </div>
     </div>
@@ -36,7 +36,7 @@
             {{-- Rating Summary --}}
             @if($totalReviews > 0)
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-5">
-                <h2 class="font-bold mb-4">⭐ Ratings & Reviews</h2>
+                <h2 class="font-bold mb-4">Ratings & Reviews</h2>
                 <div class="flex items-center gap-6 mb-5">
                     <div class="text-center">
                         <div class="text-5xl font-bold text-yellow-400">
@@ -49,7 +49,7 @@
                         @for($i = 5; $i >= 1; $i--)
                         <div class="flex items-center gap-2 mb-1">
                             <span class="text-xs text-gray-400 w-4">{{ $i }}</span>
-                            <span class="text-yellow-400 text-xs">⭐</span>
+                            <span class="text-yellow-400 text-xs">★</span>
                             <div class="flex-1 bg-gray-800 rounded-full h-2">
                                 @php
                                     $pct = $totalReviews > 0
@@ -70,7 +70,7 @@
             {{-- Review List --}}
             <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
                 <div class="px-5 py-3 border-b border-gray-800 font-bold text-sm">
-                    💬 Comments ({{ $totalReviews }})
+                    Comments ({{ $totalReviews }})
                 </div>
 
                 @forelse($reviews as $review)
@@ -88,8 +88,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="text-yellow-400">
-                            {{ $review->stars() }}
+                        <div class="flex">
+                            {!! $review->stars() !!}
                         </div>
                     </div>
                     @if($review->comment)
@@ -125,7 +125,7 @@
         <div>
             <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
                 <div class="px-4 py-3 border-b border-gray-800 font-bold text-sm">
-                    🎮 Active Listings
+                    Active Listings
                 </div>
 
                 @forelse($listings as $listing)

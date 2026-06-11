@@ -1,5 +1,6 @@
-<?php
 
+<?php
+/*
 namespace App\Http\Controllers;
 
 use App\Models\Listing;
@@ -31,7 +32,7 @@ class CheckoutController extends Controller
 
         $fee = round($listing->price * 0.05, 2);
 
-        return view('checkout.checkout', compact('listing', 'fee'));
+        return view('transaction.payment', compact('listing', 'fee'));
     }
 
     // Step 2 — Show card details page
@@ -116,3 +117,4 @@ class CheckoutController extends Controller
             ->with('success', '🎉 Payment successful! Your funds are held in escrow.');
     }
 }
+*/

@@ -1,12 +1,22 @@
 @extends('layouts.app')
 @section('title', 'Create Auction')
 
+@if ($errors->any())
+    <div class="text-red-500 bg-red-900/20 p-4 rounded-xl">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>• {{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 @section('content')
 <div class="max-w-3xl mx-auto px-4 py-10">
 
     <div class="mb-8">
         <h1 class="text-3xl font-bold tracking-tight mb-2 flex items-center gap-3">
-            🏆 Create New Auction
+            Create New Auction
         </h1>
         <p class="text-gray-400">
             List your account securely. Highest bidder wins — payment held in escrow until delivery.
@@ -61,19 +71,19 @@
                     <label class="block text-sm font-medium text-gray-400 mb-2">Platform <span class="text-red-400">*</span></label>
                     <div class="grid grid-cols-3 gap-3">
                         <label class="cursor-pointer">
-                            <input type="radio" name="platform" value="Mobile" class="peer hidden" {{ old('platform') === 'Mobile' ? 'checked' : '' }}>
+                            <input type="radio" name="platform" value="Mobile" required class="peer hidden" {{ old('platform') === 'Mobile' ? 'checked' : '' }}>
                             <div class="peer-checked:bg-indigo-600 peer-checked:text-white border border-gray-700 hover:border-gray-600 rounded-2xl py-4 text-center transition">
                                 📱 Mobile
                             </div>
                         </label>
                         <label class="cursor-pointer">
-                            <input type="radio" name="platform" value="PC" class="peer hidden" {{ old('platform') === 'PC' ? 'checked' : '' }}>
+                            <input type="radio" name="platform" value="PC" required class="peer hidden" {{ old('platform') === 'PC' ? 'checked' : '' }}>
                             <div class="peer-checked:bg-indigo-600 peer-checked:text-white border border-gray-700 hover:border-gray-600 rounded-2xl py-4 text-center transition">
                                 🖥️ PC
                             </div>
                         </label>
                         <label class="cursor-pointer">
-                            <input type="radio" name="platform" value="Console" class="peer hidden" {{ old('platform') === 'Console' ? 'checked' : '' }}>
+                            <input type="radio" name="platform" value="Console" required class="peer hidden" {{ old('platform') === 'Console' ? 'checked' : '' }}>
                             <div class="peer-checked:bg-indigo-600 peer-checked:text-white border border-gray-700 hover:border-gray-600 rounded-2xl py-4 text-center transition">
                                 🎮 Console
                             </div>
@@ -135,10 +145,15 @@
 
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-400 mb-2">Auction Ends <span class="text-red-400">*</span></label>
-                    <input type="datetime-local" name="auction_ends_at" value="{{ old('auction_ends_at') }}"
-                           min="{{ now()->addHour()->format('Y-m-d\TH:i') }}"
-                           class="w-full bg-gray-800 border border-gray-700 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-indigo-500">
-                    <p class="text-xs text-gray-500 mt-2">Minimum 1 hour from now. Longer auctions usually attract more bids.</p>
+                    <input type="datetime-local" name="auction_ends_at"
+                        id="auctionEndsAt"
+                        value="{{ old('auction_ends_at') }}"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-2xl
+                                px-5 py-3.5 text-white focus:outline-none focus:border-indigo-500">
+                    <p class="text-xs text-gray-500 mt-2">
+                        Minimum 1 hour from now. Recommended: 24–72 hours.
+                    </p>
+                    {{-- <p class="text-xs text-gray-500 mt-2">Minimum 1 hour from now. Longer auctions usually attract more bids.</p> --}}
                     @error('auction_ends_at')
                         <p class="text-red-400 text-sm mt-1.5">{{ $message }}</p>
                     @enderror
@@ -194,47 +209,66 @@ const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('imageInput');
 const previewContainer = document.getElementById('imagePreview');
 
+// click upload
 dropZone.addEventListener('click', () => fileInput.click());
 
+// drag UI only
 dropZone.addEventListener('dragover', e => {
     e.preventDefault();
-    dropZone.classList.add('border-indigo-500', 'bg-gray-800/50');
+    dropZone.classList.add('border-indigo-500');
 });
 
 dropZone.addEventListener('dragleave', () => {
-    dropZone.classList.remove('border-indigo-500', 'bg-gray-800/50');
+    dropZone.classList.remove('border-indigo-500');
 });
 
+// ❗ IMPORTANT: do NOT inject dropped files
 dropZone.addEventListener('drop', e => {
     e.preventDefault();
-    dropZone.classList.remove('border-indigo-500', 'bg-gray-800/50');
-    handleFiles(e.dataTransfer.files);
+    dropZone.classList.remove('border-indigo-500');
+
+    alert("Please click and select images. Drag preview only (browser security).");
 });
 
-fileInput.addEventListener('change', () => {
-    handleFiles(fileInput.files);
-});
+fileInput.addEventListener('change', function () {
+    const maxSize = 3 * 1024 * 1024; // 3MB
 
-function handleFiles(files) {
+    for (let file of this.files) {
+        if (file.size > maxSize) {
+            alert("Image must be less than 3MB");
+            this.value = ""; // clear input
+            previewContainer.innerHTML = '';
+            return;
+        }
+    }
+
+    renderPreviews(this.files);
+});
+``
+
+// preview
+function renderPreviews(files) {
     previewContainer.innerHTML = '';
 
-    Array.from(files).forEach(file => {
+    Array.from(files).forEach((file, index) => {
         if (!file.type.startsWith('image/')) return;
 
         const reader = new FileReader();
+
         reader.onload = e => {
             const div = document.createElement('div');
-            div.className = 'relative group';
+            div.className = 'relative';
+
             div.innerHTML = `
-                <img src="${e.target.result}"
-                     class="w-full aspect-square object-cover rounded-2xl border border-gray-700">
-                <button type="button"
-                        class="absolute top-2 right-2 bg-black/70 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                    ✕
-                </button>
+                <img src="${e.target.result}" class="w-full aspect-square object-cover">
+                <div class="absolute bottom-2 left-2 bg-black text-white text-xs px-2 py-1">
+                    ${index + 1}
+                </div>
             `;
+
             previewContainer.appendChild(div);
         };
+
         reader.readAsDataURL(file);
     });
 }

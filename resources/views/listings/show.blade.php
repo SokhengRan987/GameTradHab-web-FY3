@@ -100,7 +100,7 @@
                             <div class="flex-1 min-w-0">
                                 <div class="text-xs text-gray-500 mb-0.5">Telegram</div>
                                 <div class="text-sm font-semibold text-sky-400 group-hover:text-sky-300">
-                                    @{{ $listing->contact_telegram }}
+                                    {{ $listing->contact_telegram }}
                                 </div>
                             </div>
                             <span class="text-gray-600 group-hover:text-gray-400 text-xs">→</span>
@@ -222,8 +222,8 @@
                             </span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-yellow-400 text-sm">
-                                {{ $review->stars() }}
+                            <span class="flex">
+                                {!! $review->stars() !!}
                             </span>
                             <span class="text-xs text-gray-500">
                                 {{ $review->created_at->diffForHumans() }}
@@ -448,7 +448,7 @@
                         <input type="hidden" name="listing_id" value="{{ $listing->id }}">
                         <button type="submit"
 
-                            <a href="{{ route('checkout.show', $listing) }}"
+                            <a href="{{ route('transactions.payment', $listing) }}"
                             class="block w-full text-center bg-green-600 hover:bg-green-500
                                     text-white py-3 rounded-xl font-bold text-sm transition">
                                 🛒 Buy Now — ${{ number_format($listing->price, 2) }}

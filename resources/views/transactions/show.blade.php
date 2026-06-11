@@ -40,7 +40,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <div class="w-16 h-12 bg-gray-800 rounded-lg flex items-center
-                                justify-center text-2xl flex-shrink-0">🎮</div>
+                                justify-center text-2xl flex-shrink-0"></div>
                     <div>
                         <div class="font-semibold">{{ $transaction->listing->title }}</div>
                         <div class="text-sm text-gray-400">
@@ -59,11 +59,11 @@
                 </div>
                 @php
                     $steps = [
-                        ['icon' => '💳', 'label' => 'Payment Initiated',         'done' => true],
-                        ['icon' => '🔒', 'label' => 'Funds Held in Escrow',      'done' => in_array($transaction->status, ['escrow','completed','disputed','refunded'])],
-                        ['icon' => '📩', 'label' => 'Account Credentials Sent',  'done' => in_array($transaction->status, ['completed','refunded'])],
-                        ['icon' => '✅', 'label' => 'Buyer Confirmed Receipt',   'done' => $transaction->status === 'completed'],
-                        ['icon' => '💰', 'label' => 'Seller Paid',               'done' => $transaction->status === 'completed'],
+                        ['label' => 'Payment Initiated',         'done' => true],
+                        ['label' => 'Funds Held in Escrow',      'done' => in_array($transaction->status, ['escrow','completed','disputed','refunded'])],
+                        ['label' => 'Account Credentials Sent',  'done' => in_array($transaction->status, ['completed','refunded'])],
+                        ['label' => 'Buyer Confirmed Receipt',   'done' => $transaction->status === 'completed'],
+                        ['label' => 'Seller Paid',               'done' => $transaction->status === 'completed'],
                     ];
                 @endphp
                 <div class="flex flex-col gap-0">
@@ -72,14 +72,13 @@
                                 {{ !$loop->last ? 'border-b border-gray-800' : '' }}">
                         <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0
                                     {{ $step['done'] ? 'bg-green-500/15 border border-green-500/30' : 'bg-gray-800 border border-gray-700' }}">
-                            {{ $step['icon'] }}
                         </div>
                         <div class="flex-1 text-sm font-medium
                                     {{ $step['done'] ? 'text-white' : 'text-gray-500' }}">
                             {{ $step['label'] }}
                         </div>
                         @if($step['done'])
-                        <span class="text-xs text-green-400 font-bold">✓ Done</span>
+                        <span class="text-xs text-green-400 font-bold">Done</span>
                         @endif
                     </div>
                     @endforeach
@@ -89,20 +88,20 @@
             {{-- Action Box --}}
             @if($transaction->status === 'pending' && $transaction->buyer_id === auth()->id())
             <div class="bg-orange-500/5 border border-orange-500/20 rounded-xl p-4">
-                <div class="font-bold mb-2">⏳ Awaiting Your Payment</div>
+                <div class="font-bold mb-2">Awaiting Your Payment</div>
                 <p class="text-sm text-gray-400 mb-3">
                     Please complete your bank transfer to proceed.
                 </p>
                 <a href="{{ route('transactions.payment', $transaction) }}"
                 class="block w-full bg-orange-600 hover:bg-orange-500 text-white
                         text-center py-2.5 rounded-xl text-sm font-bold transition">
-                    🏦 View Payment Instructions
+                    View Payment Instructions
                 </a>
             </div>
 
             @elseif($transaction->status === 'paid' && $transaction->buyer_id === auth()->id())
             <div class="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4">
-                <div class="font-bold mb-1">🕐 Payment Submitted</div>
+                <div class="font-bold mb-1">Payment Submitted</div>
                 <p class="text-sm text-gray-400">
                     Admin is verifying your payment. This usually takes 1-3 hours.
                     We'll notify you once confirmed.
@@ -117,7 +116,7 @@
             @elseif($transaction->status === 'escrow' && $transaction->buyer_id === auth()->id())
             <div class="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-4">
                 <div class="flex items-center justify-between mb-2">
-                    <div class="font-bold">✅ Payment Confirmed — Check Your Account</div>
+                    <div class="font-bold">Payment Confirmed — Check Your Account</div>
                     @if($transaction->review_deadline)
                     <div class="text-right">
                         <div class="text-xs text-gray-400">Confirm by</div>
@@ -143,7 +142,7 @@
                     target="_blank"
                     class="flex items-center gap-2 text-sky-400 hover:text-sky-300
                             text-sm mb-1 transition">
-                        ✈️ t.me/{{ $transaction->listing->contact_telegram }}
+                        t.me/{{ $transaction->listing->contact_telegram }}
                     </a>
                     @endif
                     @if($transaction->listing->contact_whatsapp)
@@ -151,12 +150,12 @@
                     target="_blank"
                     class="flex items-center gap-2 text-green-400 hover:text-green-300
                             text-sm mb-1 transition">
-                        📱 +{{ $transaction->listing->contact_whatsapp }}
+                        +{{ $transaction->listing->contact_whatsapp }}
                     </a>
                     @endif
                     @if($transaction->listing->contact_discord)
                     <div class="text-indigo-400 text-sm">
-                        🎮 {{ $transaction->listing->contact_discord }}
+                        {{ $transaction->listing->contact_discord }}
                     </div>
                     @endif
                 </div>
@@ -169,7 +168,7 @@
                         @csrf
                         <button class="bg-green-600 hover:bg-green-500 text-white
                                     px-5 py-2.5 rounded-xl text-sm font-bold transition">
-                            ✅ Confirm Receipt
+                            Confirm Receipt
                         </button>
                     </form>
                     <form method="POST"
@@ -179,12 +178,13 @@
                         <button class="bg-red-600/20 hover:bg-red-600/40 text-red-400
                                     border border-red-500/30 px-5 py-2.5
                                     rounded-xl text-sm font-bold transition">
-                            ⚠️ Raise Dispute
+                            Raise Dispute
                         </button>
                     </form>
                 </div>
             </div>
             @endif
+
             {{-- Review Section --}}
             @if(in_array($transaction->status, ['escrow', 'completed']) && $transaction->buyer_id === auth()->id())
             <div class="bg-gray-900 border border-gray-800 rounded-xl p-4">
@@ -193,12 +193,12 @@
                 {{-- Already reviewed --}}
                 @php $review = $transaction->review @endphp
                 <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
-                    ⭐ Your Review
+                    Your Review
                 </div>
                 <div class="bg-gray-800 rounded-xl p-3">
                     <div class="flex items-center justify-between mb-2">
-                        <div class="text-yellow-400 text-lg">
-                            {{ $review->stars() }}
+                        <div class="flex">
+                            {!! $review->stars() !!}
                         </div>
                         <span class="text-xs text-gray-500">
                             {{ $review->created_at->format('M d, Y') }}
@@ -212,7 +212,7 @@
                         onsubmit="return confirm('Delete your review?')">
                         @csrf @method('DELETE')
                         <button class="text-xs text-red-400 hover:text-red-300 transition">
-                            🗑️ Delete review
+                            Delete review
                         </button>
                     </form>
                 </div>
@@ -220,7 +220,7 @@
                 @else
                 {{-- Leave a review --}}
                 <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
-                    ⭐ Leave a Review
+                    Leave a Review
                 </div>
                 <p class="text-xs text-gray-400 mb-4">
                     How was your experience with {{ $transaction->seller->name }}?
@@ -243,7 +243,7 @@
                                     @mouseenter="hover = {{ $i }}"
                                     @mouseleave="hover = 0"
                                     class="text-3xl transition-transform hover:scale-110">
-                                <span x-text="(hover || rating) >= {{ $i }} ? '⭐' : '☆'"
+                                <span x-text="(hover || rating) >= {{ $i }} ? '★' : '☆'"
                                     :class="(hover || rating) >= {{ $i }}
                                             ? 'text-yellow-400'
                                             : 'text-gray-600'">
@@ -254,7 +254,7 @@
                         <input type="hidden" name="rating" :value="rating">
                         <p x-show="rating > 0"
                         class="text-xs text-gray-400 mt-1"
-                        x-text="['', 'Terrible 😞', 'Bad 😕', 'Okay 😐', 'Good 😊', 'Excellent! 🎉'][rating]">
+                        x-text="['', 'Terrible', 'Bad', 'Okay', 'Good', 'Excellent!'][rating]">
                         </p>
                     </div>
 

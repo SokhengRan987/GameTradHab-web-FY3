@@ -6,7 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Transaction extends Model
 {
-    //
+    const STATUS_PENDING   = 'pending';
+    const STATUS_PAID      = 'paid';
+    const STATUS_ESCROW    = 'escrow';
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_REFUNDED  = 'refunded';
+
     protected $fillable = [
         'transaction_code',
         'listing_id',
@@ -23,7 +28,7 @@ class Transaction extends Model
         'payment_reference',
         'bank_name',
         'bank_account_name',
-        'buyer_paid_at',
+        // 'buyer_paid_at',
         'admin_confirmed_at',
         'payment_note',
     ];
@@ -36,7 +41,7 @@ class Transaction extends Model
         'buyer_confirmed_at' => 'datetime',
         'escrow_released_at' => 'datetime',
         'buyer_paid_at' => 'datetime',
-        'admin_paid_at' => 'datetime',
+        // 'admin_paid_at' => 'datetime',
         'admin_confirmed_at' => 'datetime',
     ];
     // The listing being sold

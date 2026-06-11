@@ -42,6 +42,14 @@ class AuctionService
                 'current_bid'       => $amount,
                 'highest_bidder_id' => $bidder->id,
             ]);
+            
+            // ✅ 🔥 BROADCAST EVENT HERE
+            DB::afterCommit(function () use ($listing, $bid) {
+                event(new \App\Events\BidPlaced(
+                    $listing->fresh(),
+                    $bid->load('user')
+                ));
+            });
 
             return $bid;
         });
@@ -65,8 +73,12 @@ class AuctionService
             }
 
             $winningBid = Bid::where('listing_id', $listing->id)
-                ->where('status', 'active')
+                // ->where('status', 'active')
+                // ->first();
+                ->orderByDesc('amount')
+                ->lockForUpdate()
                 ->first();
+
 
             if (!$winningBid) {
                 $listing->update(['status' => 'inactive']);
@@ -126,20 +138,55 @@ class AuctionService
             throw new Exception('This auction is not active.');
         }
 
-        if ($listing->hasEnded()) {
-            throw new Exception('This auction has already ended.');
+        if ($listing->auction_ends_at <= now()) {
+            throw new Exception('Auction has ended.');
         }
+
 
         if ($listing->user_id === $bidder->id) {
             throw new Exception('You cannot bid on your own listing.');
         }
 
+        // Prevent highest bidder from bidding again
+        if ($listing->highest_bidder_id === $bidder->id) {
+            throw new Exception('You are already the highest bidder.');
+        }
+
+
+        //  Enforce minimum increment
         $minimum = $listing->minimumNextBid();
         if ($amount < $minimum) {
             throw new Exception(
                 'Minimum bid is $' . number_format($minimum, 2) . '.'
             );
         }
+
+        //  Prevent same user repeating same bid amount
+        $lastBid = Bid::where('listing_id', $listing->id)
+            ->where('user_id', $bidder->id)
+            ->orderByDesc('id')
+            ->first();
+
+        if ($lastBid && (float)$lastBid->amount === (float)$amount) {
+            throw new Exception('You already placed this bid amount.');
+        }
+
+
+        //  Extra safety (optional but good)
+        $current = $listing->current_bid ?? $listing->starting_price;
+
+        if ($amount <= $current) {
+            throw new Exception('Your bid must be higher than the current bid.');
+        }
+
+
+
+        // $minimum = $listing->minimumNextBid();
+        // if ($amount < $minimum) {
+        //     throw new Exception(
+        //         'Minimum bid is $' . number_format($minimum, 2) . '.'
+        //     );
+        // }
 
         // — winner pays by card after auction ends
     }

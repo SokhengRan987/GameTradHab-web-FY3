@@ -98,7 +98,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     ->name('transactions.card');
     Route::post('/transactions/{transaction}/pay', [TransactionController::class, 'pay'])
     ->name('transactions.pay');
-    
+
 
     // Reviews
     Route::post('/transactions/{transaction}/review', [ReviewController::class, 'store'])
@@ -106,11 +106,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])
         ->name('reviews.destroy');
 
-    // Wallet
-    Route::get('/wallet', [WalletController::class, 'index'])
-        ->name('wallet.index');
-    Route::post('/wallet/topup', [WalletController::class, 'topup'])
-        ->name('wallet.topup');
+    // // Wallet
+    // Route::get('/wallet', [WalletController::class, 'index'])
+    //     ->name('wallet.index');
+    // Route::post('/wallet/topup', [WalletController::class, 'topup'])
+    //     ->name('wallet.topup');
 
     // Auctions — /create and /my-bids MUST come before {listing}
     Route::get('/auctions/create', [AuctionController::class, 'create'])
@@ -206,6 +206,6 @@ Route::post('/share/{listing}', [App\Http\Controllers\ShareController::class, 's
     ->name('listings.share');
 
 // Checkout
-Route::get('/checkout/{listing}',      [App\Http\Controllers\CheckoutController::class, 'show'])->name('checkout.show');
-Route::get('/checkout/{listing}/card', [App\Http\Controllers\CheckoutController::class, 'card'])->name('checkout.card');
-Route::post('/checkout/{listing}/pay', [App\Http\Controllers\CheckoutController::class, 'pay'])->name('checkout.pay');
+// Route::get('/checkout/{listing}',      [App\Http\Controllers\CheckoutController::class, 'show'])->name('checkout.show');
+// Route::get('/checkout/{listing}/card', [App\Http\Controllers\CheckoutController::class, 'card'])->name('checkout.card');
+// Route::post('/checkout/{listing}/pay', [App\Http\Controllers\CheckoutController::class, 'pay'])->name('checkout.pay');

@@ -111,10 +111,10 @@
                                class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white">
                                 📊 Dashboard
                             </a>
-                            <a href="{{ route('wallet.index') }}"
+                            {{-- <a href="{{ route('wallet.index') }}"
                                class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white">
                                 💰 Wallet
-                            </a>
+                            </a> --}}
                             <a href="{{ route('profile.edit') }}"
                                class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white">
                                 ⚙️ Profile
@@ -269,10 +269,10 @@
                         class="text-xs text-gray-500 hover:text-indigo-400 transition">
                             📦 My Orders
                         </a>
-                        <a href="{{ route('wallet.index') }}"
+                        {{-- <a href="{{ route('wallet.index') }}"
                         class="text-xs text-gray-500 hover:text-indigo-400 transition">
                             💰 Wallet
-                        </a>
+                        </a> --}}
                         <a href="{{ route('profile.edit') }}"
                         class="text-xs text-gray-500 hover:text-indigo-400 transition">
                             ⚙️ Profile

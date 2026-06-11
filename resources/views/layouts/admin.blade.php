@@ -54,11 +54,11 @@
                 @endif
             </a>
 
-            <a href="{{ route('admin.transactions.index', ['status' => 'paid']) }}"
+            <a href="{{ route('admin.transactions.index', ['status' => 'escrow']) }}"
             class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-1
                     text-gray-400 hover:bg-gray-800 hover:text-white">
                 💳 Verify Payments
-                @php $pendingPay = \App\Models\Transaction::where('status','paid')->count() @endphp
+                @php $pendingPay = \App\Models\Transaction::where('status','escrow')->count() @endphp
                 @if($pendingPay > 0)
                 <span class="ml-auto bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">
                     {{ $pendingPay }}

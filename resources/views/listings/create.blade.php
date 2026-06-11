@@ -1,237 +1,334 @@
 @extends('layouts.app')
-@section('title', 'Sell Account')
+@section('title', 'Sell Account — GameTradeHub')
 
 @section('content')
-<div class="max-w-2xl mx-auto px-4 py-8">
+<div class="max-w-2xl mx-auto px-4 py-10">
 
-    <h1 class="text-2xl font-bold mb-1">📤 Sell Your Account</h1>
-    <p class="text-gray-400 text-sm mb-8">
-        Fill the details below. Your listing goes live instantly.
-    </p>
+    {{-- Page Header --}}
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-white mb-1">Post a Listing</h1>
+        <p class="text-gray-500 text-sm">Fill in the details below to list your account for sale.</p>
+    </div>
 
-    <form method="POST" action="{{ route('listings.store') }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('listings.store') }}" enctype="multipart/form-data" class="space-y-5">
         @csrf
 
-        {{-- GAME INFO --}}
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-6">
-            <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-5">
-                🎮 Game Information
+        {{-- ── GAME INFORMATION ──────────────────────────────────── --}}
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+            <div class="flex items-center gap-2 mb-5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+                </svg>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Game Information</span>
             </div>
 
-            <div class="mb-5">
-                <label class="block text-xs font-semibold text-gray-400 mb-1.5">Game <span class="text-red-400">*</span></label>
-                <select name="game_id" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white">
-                    <option value="">Select a game</option>
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-gray-400 mb-1.5">
+                    Game <span class="text-red-400">*</span>
+                </label>
+                <select name="game_id" required
+                        class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3
+                               text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+                    <option value="" disabled selected hidden>Select a game</option>
                     @foreach($games as $game)
                     <option value="{{ $game->id }}" {{ old('game_id') == $game->id ? 'selected' : '' }}>
-                        {{ $game->name }} — {{ $game->category }}
+                        {{ $game->name }}
                     </option>
                     @endforeach
                 </select>
-                @error('game_id') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                @error('game_id')
+                <p class="text-red-400 text-xs mt-1.5">{{ $message }}</p>
+                @enderror
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-gray-400 mb-1.5">Rank</label>
-                    <input type="text" name="rank" value="{{ old('rank') }}" placeholder="Mythic"
-                           class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm">
+                    <input type="text" name="rank" value="{{ old('rank') }}" placeholder="e.g. Mythic"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3
+                                  text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-400 mb-1.5">Level</label>
-                    <input type="number" name="level" value="{{ old('level') }}" placeholder="120"
-                           class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm">
+                    <input type="number" name="level" value="{{ old('level') }}" placeholder="e.g. 120"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3
+                                  text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-400 mb-1.5">Server</label>
-                    <input type="text" name="server" value="{{ old('server') }}" placeholder="SEA"
-                           class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm">
+                    <input type="text" name="server" value="{{ old('server') }}" placeholder="e.g. SEA"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3
+                                  text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-400 mb-1.5">Platform <span class="text-red-400">*</span></label>
-                    <select name="platform" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm">
-                        <option value="">Select</option>
-                        <option value="Mobile" {{ old('platform') === 'Mobile' ? 'selected' : '' }}>📱 Mobile</option>
-                        <option value="PC" {{ old('platform') === 'PC' ? 'selected' : '' }}>🖥️ PC</option>
-                        <option value="Console" {{ old('platform') === 'Console' ? 'selected' : '' }}>🎮 Console</option>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1.5">
+                        Platform <span class="text-red-400">*</span>
+                    </label>
+                    <select name="platform" required
+                            class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3
+                                   text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+                        <option value="" disabled selected hidden>Select</option>
+                        <option value="Mobile"  {{ old('platform') === 'Mobile'  ? 'selected' : '' }}>Mobile</option>
+                        <option value="PC"      {{ old('platform') === 'PC'      ? 'selected' : '' }}>PC</option>
+                        <option value="Console" {{ old('platform') === 'Console' ? 'selected' : '' }}>Console</option>
                     </select>
+                    @error('platform')
+                    <p class="text-red-400 text-xs mt-1.5">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
         </div>
 
-        {{-- LISTING DETAILS --}}
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-6">
-            <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-5">
-                📝 Listing Details
+        {{-- ── LISTING DETAILS ───────────────────────────────────── --}}
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+
+            <div class="flex items-center gap-2 mb-5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Listing Details</span>
             </div>
 
-            <div class="mb-5">
-                <label class="block text-xs font-semibold text-gray-400 mb-1.5">Title <span class="text-red-400">*</span></label>
-                <input type="text" name="title" value="{{ old('title') }}" required placeholder="Mythic Account | 150 Skins | All Heroes"
-                       class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm">
-                @error('title') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-gray-400 mb-1.5">
+                    Title <span class="text-red-400">*</span>
+                </label>
+                <input type="text" name="title" value="{{ old('title') }}" required
+                       placeholder="e.g. Mythic Account | 150 Skins | All Heroes"
+                       class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3
+                              text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition">
+                @error('title')
+                <p class="text-red-400 text-xs mt-1.5">{{ $message }}</p>
+                @enderror
             </div>
 
-            <div class="mb-5">
-                <label class="block text-xs font-semibold text-gray-400 mb-1.5">Description <span class="text-red-400">*</span></label>
-                <textarea name="description" rows="4" required placeholder="Describe the account in detail..."
-                          class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm resize-none">{{ old('description') }}</textarea>
-                @error('description') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-gray-400 mb-1.5">
+                    Description <span class="text-red-400">*</span>
+                </label>
+                <textarea name="description" rows="5" required
+                          placeholder="Describe the account — skins, heroes, rank history, any notable items..."
+                          class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3
+                                 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500
+                                 transition resize-none">{{ old('description') }}</textarea>
+                @error('description')
+                <p class="text-red-400 text-xs mt-1.5">{{ $message }}</p>
+                @enderror
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-gray-400 mb-1.5">Price (USD) <span class="text-red-400">*</span></label>
+                <label class="block text-xs font-semibold text-gray-400 mb-1.5">
+                    Price (USD) <span class="text-red-400">*</span>
+                </label>
                 <div class="relative">
-                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
-                    <input type="number" name="price" id="priceInput" value="{{ old('price') }}" step="0.01" min="1" required
-                           class="w-full bg-gray-800 border border-gray-700 rounded-xl pl-8 pr-4 py-3 text-sm">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">$</span>
+                    <input type="number" name="price" value="{{ old('price') }}" step="0.01" min="1" required
+                           placeholder="0.00"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-xl pl-8 pr-4 py-3
+                                  text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition">
                 </div>
-               {{--  <div class="mt-3 bg-green-500/10 border border-green-500/20 rounded-xl px-4 py-3 flex justify-between">
-                    <span class="text-gray-400">You will receive:</span>
-                    <strong class="text-green-400" id="payoutDisplay">$0.00</strong>
-                </div>
-            </div>--}}
+                @error('price')
+                <p class="text-red-400 text-xs mt-1.5">{{ $message }}</p>
+                @enderror
+            </div>
         </div>
 
-        {{-- CONTACT --}}
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-6">
-            <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">
-                📬 Contact Information
-            </div>
-            <p class="text-xs text-gray-500 mb-5">Buyers will message you here</p>
+        {{-- ── CONTACT INFORMATION ───────────────────────────────── --}}
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
 
-            <div class="space-y-5">
+            <div class="flex items-center gap-2 mb-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Contact Information</span>
+            </div>
+            <p class="text-xs text-gray-600 mb-5 ml-6">Buyers will reach out to you via these channels.</p>
+
+            <div class="space-y-4">
+
+                {{-- Telegram --}}
                 <div>
-                    <label class="block text-xs font-semibold text-gray-400 mb-1.5">Telegram <span class="text-red-400">*</span></label>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1.5">
+                        Telegram <span class="text-red-400">*</span>
+                    </label>
                     <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">@</span>
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium">@</span>
                         <input type="text" name="contact_telegram" id="telegramInput" required
                                value="{{ old('contact_telegram') }}" placeholder="yourusername"
-                               class="w-full bg-gray-800 border border-gray-700 rounded-xl pl-8 pr-4 py-3 text-sm">
+                               class="w-full bg-gray-800 border border-gray-700 rounded-xl pl-8 pr-4 py-3
+                                      text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition">
                     </div>
-                    @error('contact_telegram') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                    @error('contact_telegram')
+                    <p class="text-red-400 text-xs mt-1.5">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
+                    {{-- WhatsApp --}}
                     <div>
-                        <label class="block text-xs font-semibold text-gray-400 mb-1.5">WhatsApp (optional)</label>
-                        <input type="text" name="contact_whatsapp" value="{{ old('contact_whatsapp') }}" placeholder="+60123456789"
-                               class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm">
+                        <label class="block text-xs font-semibold text-gray-400 mb-1.5">
+                            WhatsApp
+                            <span class="text-gray-600 font-normal ml-1">optional</span>
+                        </label>
+                        <input type="text" name="contact_whatsapp" value="{{ old('contact_whatsapp') }}"
+                               placeholder="+60123456789"
+                               class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3
+                                      text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition">
                     </div>
+                    {{-- Discord --}}
                     <div>
-                        <label class="block text-xs font-semibold text-gray-400 mb-1.5">Discord (optional)</label>
-                        <input type="text" name="contact_discord" value="{{ old('contact_discord') }}" placeholder="username#0000"
-                               class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm">
+                        <label class="block text-xs font-semibold text-gray-400 mb-1.5">
+                            Discord
+                            <span class="text-gray-600 font-normal ml-1">optional</span>
+                        </label>
+                        <input type="text" name="contact_discord" value="{{ old('contact_discord') }}"
+                               placeholder="username#0000"
+                               class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3
+                                      text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition">
                     </div>
                 </div>
+
             </div>
         </div>
 
-        {{-- IMAGES - LARGE FULL PREVIEW --}}
-<div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-8">
-    <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">
-        📸 Proof Screenshots <span class="text-red-400">*</span>
-    </div>
+        {{-- ── PROOF SCREENSHOTS ─────────────────────────────────── --}}
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6">
 
-    <div id="uploadArea"
-         class="border-2 border-dashed border-gray-700 hover:border-indigo-500 rounded-2xl p-8 text-center cursor-pointer transition min-h-[420px] flex flex-col">
-
-        <input type="file" name="images[]" multiple accept="image/*" class="hidden" id="imageInput">
-
-        <!-- Upload Prompt -->
-        <div id="uploadPrompt" class="flex-1 flex flex-col items-center justify-center">
-            <div class="text-6xl mb-5">📸</div>
-            <div class="font-semibold text-white text-xl">Click to upload screenshots</div>
-            <div class="text-sm text-gray-400 mt-2 text-center">
-                JPG, PNG, WEBP • Max 3MB each<br>
-                At least 1 image recommended
+            <div class="flex items-center gap-2 mb-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Proof Screenshots</span>
             </div>
+            <p class="text-xs text-gray-600 mb-5 ml-6">Upload screenshots showing rank, inventory, or other account details.</p>
+
+            <input type="file" name="images[]" multiple accept="image/*" class="hidden" id="imageInput">
+
+            {{-- Drop Zone --}}
+            <div id="uploadArea"
+                 class="border-2 border-dashed border-gray-700 hover:border-indigo-500/60
+                        rounded-xl transition cursor-pointer">
+
+                {{-- Prompt --}}
+                <div id="uploadPrompt" class="flex flex-col items-center justify-center py-12 px-6 text-center">
+                    <div class="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                    </div>
+                    <p class="text-sm font-semibold text-white mb-1">Click to upload screenshots</p>
+                    <p class="text-xs text-gray-500">JPG, PNG, WEBP · Max 3MB each</p>
+                </div>
+
+                {{-- Preview Grid --}}
+                <div id="imagePreview" class="hidden p-4 grid grid-cols-2 gap-3"></div>
+            </div>
+
+            {{-- Add More --}}
+            <div id="addMoreBtn" class="hidden mt-3">
+                <button type="button" onclick="document.getElementById('imageInput').click()"
+                        class="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add more images
+                </button>
+            </div>
+
+            @error('images')
+            <p class="text-red-400 text-xs mt-2">{{ $message }}</p>
+            @enderror
         </div>
 
-        <!-- Large Preview Area -->
-        <div id="imagePreview" class="hidden w-full grid grid-cols-1 gap-4 mt-4"></div>
-    </div>
-
-    <div id="addMoreBtn" class="hidden mt-4 text-center">
-        <button type="button" onclick="document.getElementById('imageInput').click()"
-                class="text-indigo-400 hover:text-indigo-300 text-sm flex items-center gap-2 mx-auto">
-            + Add more images
-        </button>
-    </div>
-
-    @error('images')
-        <p class="text-red-400 text-xs mt-2">{{ $message }}</p>
-    @enderror
-</div>
-
-        {{-- SUBMIT --}}
-        <div class="flex items-center justify-between">
-            <a href="{{ route('dashboard') }}" class="text-gray-400 hover:text-white transition">← Cancel</a>
+        {{-- ── SUBMIT ────────────────────────────────────────────── --}}
+        <div class="flex items-center justify-between pt-2">
+            <a href="{{ route('dashboard') }}"
+               class="flex items-center gap-1.5 text-sm text-gray-500 hover:text-white transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Cancel
+            </a>
             <button type="submit"
-                    class="bg-indigo-600 hover:bg-indigo-500 px-8 py-3.5 rounded-2xl font-semibold transition">
-                🚀 Post Listing Now
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold
+                           px-8 py-3 rounded-xl transition flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Post Listing
             </button>
         </div>
+
     </form>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-// Price calculator
-document.getElementById('priceInput').addEventListener('input', function() {
-    const payout = (parseFloat(this.value) * 0.95 || 0).toFixed(2);
-    document.getElementById('payoutDisplay').textContent = '$' + payout;
-});
-
-const uploadArea = document.getElementById('uploadArea');
-const imageInput = document.getElementById('imageInput');
+const uploadArea   = document.getElementById('uploadArea');
+const imageInput   = document.getElementById('imageInput');
 const uploadPrompt = document.getElementById('uploadPrompt');
 const imagePreview = document.getElementById('imagePreview');
-const addMoreBtn = document.getElementById('addMoreBtn');
+const addMoreBtn   = document.getElementById('addMoreBtn');
 
-imageInput.addEventListener('change', function() {
+// Click anywhere on drop zone → open file picker
+uploadArea.addEventListener('click', e => {
+    if (!e.target.closest('button')) imageInput.click();
+});
+
+// Drag & drop support
+uploadArea.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadArea.classList.add('border-indigo-500');
+});
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('border-indigo-500');
+});
+uploadArea.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadArea.classList.remove('border-indigo-500');
+    handleFiles(e.dataTransfer.files);
+});
+
+imageInput.addEventListener('change', function () {
     if (this.files.length === 0) return;
+    handleFiles(this.files);
+});
 
+function handleFiles(files) {
     uploadPrompt.classList.add('hidden');
     imagePreview.classList.remove('hidden');
     addMoreBtn.classList.remove('hidden');
 
-    // Clear previous previews
     imagePreview.innerHTML = '';
 
-    Array.from(this.files).forEach((file, index) => {
+    Array.from(files).forEach(file => {
         const reader = new FileReader();
-        reader.onload = function(e) {
-            const div = document.createElement('div');
-            div.className = 'relative group';
-            div.innerHTML = `
+        reader.onload = e => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'relative group rounded-xl overflow-hidden border border-gray-700';
+            wrapper.innerHTML = `
                 <img src="${e.target.result}"
-                     class="w-full rounded-2xl border border-gray-700 object-cover aspect-video">
+                     class="w-full aspect-video object-cover">
                 <button type="button"
                         onclick="removeImage(this)"
-                        class="absolute top-3 right-3 bg-black/80 hover:bg-red-600 text-white text-xs px-3 py-1 rounded-xl opacity-0 group-hover:opacity-100 transition">
+                        class="absolute top-2 right-2 bg-black/70 hover:bg-red-600 text-white
+                               rounded-lg px-2.5 py-1 text-xs opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                     Remove
                 </button>
             `;
-            imagePreview.appendChild(div);
+            imagePreview.appendChild(wrapper);
         };
         reader.readAsDataURL(file);
     });
-});
+}
 
-// Allow clicking anywhere on the area to upload
-uploadArea.addEventListener('click', function(e) {
-    if (!e.target.closest('button')) {
-        imageInput.click();
-    }
-});
-
-// Function to remove image
 function removeImage(btn) {
-    btn.parentElement.remove();
-
-    // If no images left, show upload prompt again
+    btn.closest('.relative').remove();
     if (imagePreview.children.length === 0) {
         uploadPrompt.classList.remove('hidden');
         imagePreview.classList.add('hidden');
@@ -239,20 +336,14 @@ function removeImage(btn) {
     }
 }
 
-// Telegram parser
+// Telegram — strip URL or @ prefix on blur/paste
 function parseTelegram(value) {
-    let u = value.trim();
-    const match = u.match(/(?:https?:\/\/)?(?:www\.)?(?:t\.me|telegram\.me)\/([a-zA-Z0-9_]+)/i);
-    if (match) u = match[1];
-    return u.replace(/^@/, '').trim();
+    const match = value.trim().match(/(?:https?:\/\/)?(?:t\.me|telegram\.me)\/([a-zA-Z0-9_]+)/i);
+    return match ? match[1] : value.trim().replace(/^@/, '');
 }
 
 const telegramInput = document.getElementById('telegramInput');
-telegramInput.addEventListener('blur', function() {
-    this.value = parseTelegram(this.value);
-});
-telegramInput.addEventListener('paste', function() {
-    setTimeout(() => this.value = parseTelegram(this.value), 10);
-});
+telegramInput.addEventListener('blur',  function () { this.value = parseTelegram(this.value); });
+telegramInput.addEventListener('paste', function () { setTimeout(() => this.value = parseTelegram(this.value), 10); });
 </script>
 @endpush
