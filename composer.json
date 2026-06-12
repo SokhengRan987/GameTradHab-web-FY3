@@ -9,6 +9,7 @@
         "php": "^8.2",
         "annexare/countries-list": "*",
         "cloudinary-labs/cloudinary-laravel": "^3.0",
+        "cloudinary/cloudinary_php": "^3.1",
         "doctrine/dbal": "*",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
